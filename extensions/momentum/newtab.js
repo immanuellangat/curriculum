@@ -17,6 +17,7 @@ const defaults = {
   useChatGpt: true,
   openaiApiKey: "",
   openaiModel: "gpt-4o-mini",
+  musicVolume: 35,
 };
 
 let settings = { ...defaults };
@@ -68,7 +69,71 @@ const elements = {
   useChatGpt: document.querySelector("#use-chatgpt"),
   openaiKey: document.querySelector("#openai-key"),
   openaiModel: document.querySelector("#openai-model"),
+  musicButton: document.querySelector("#music-button"),
+  musicVolume: document.querySelector("#music-volume"),
 };
+
+let audioContext = null;
+let noiseSource = null;
+let noiseGain = null;
+let musicPlaying = false;
+
+function createFocusNoiseBuffer(context) {
+  const bufferSize = context.sampleRate * 4;
+  const buffer = context.createBuffer(1, bufferSize, context.sampleRate);
+  const data = buffer.getChannelData(0);
+  let lastSample = 0;
+  for (let i = 0; i < bufferSize; i += 1) {
+    const white = Math.random() * 2 - 1;
+    // Brown-noise style low-pass smoothing gives a soft, rain-like focus tone.
+    lastSample = (lastSample + 0.02 * white) / 1.02;
+    data[i] = lastSample * 3.5;
+  }
+  return buffer;
+}
+
+function setMusicVolume(percent) {
+  if (noiseGain) {
+    noiseGain.gain.value = Math.max(0, Math.min(100, percent)) / 100;
+  }
+}
+
+function startMusic() {
+  audioContext = audioContext || new (window.AudioContext || window.webkitAudioContext)();
+  if (audioContext.state === "suspended") audioContext.resume();
+
+  noiseSource = audioContext.createBufferSource();
+  noiseSource.buffer = createFocusNoiseBuffer(audioContext);
+  noiseSource.loop = true;
+
+  noiseGain = audioContext.createGain();
+  setMusicVolume(Number(elements.musicVolume.value));
+
+  noiseSource.connect(noiseGain).connect(audioContext.destination);
+  noiseSource.start();
+  musicPlaying = true;
+}
+
+function stopMusic() {
+  if (noiseSource) {
+    noiseSource.stop();
+    noiseSource.disconnect();
+    noiseSource = null;
+  }
+  musicPlaying = false;
+}
+
+function toggleMusic() {
+  if (musicPlaying) {
+    stopMusic();
+  } else {
+    startMusic();
+  }
+  elements.musicButton.setAttribute("aria-pressed", String(musicPlaying));
+  elements.musicButton.setAttribute("aria-label", musicPlaying ? "Pause focus music" : "Play focus music");
+  elements.musicButton.querySelector("span").textContent = musicPlaying ? "⏸" : "▶";
+  elements.musicVolume.hidden = !musicPlaying;
+}
 
 function getGreeting(hour) {
   if (hour < 12) return "Good morning";
@@ -305,6 +370,14 @@ elements.openaiModel.addEventListener("change", () => {
   save();
 });
 
+elements.musicButton.addEventListener("click", () => toggleMusic());
+
+elements.musicVolume.addEventListener("input", () => {
+  settings.musicVolume = Number(elements.musicVolume.value);
+  setMusicVolume(settings.musicVolume);
+  save();
+});
+
 document.querySelector("#settings-button").addEventListener("click", () => toggleSettings(true));
 document.querySelector("#close-settings").addEventListener("click", () => toggleSettings(false));
 elements.backdrop.addEventListener("click", () => toggleSettings(false));
@@ -346,6 +419,7 @@ readStoredValue(storageKey, (settingsResult) => {
   elements.useChatGpt.checked = settings.useChatGpt;
   elements.openaiKey.value = settings.openaiApiKey;
   elements.openaiModel.value = settings.openaiModel;
+  elements.musicVolume.value = settings.musicVolume;
   updateAssistantModeLabel();
   document.querySelector("#quote").textContent = quotes[new Date().getDate() % quotes.length];
   renderClock();

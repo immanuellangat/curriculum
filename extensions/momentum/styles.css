@@ -51,6 +51,21 @@ button {
   justify-content: space-between;
 }
 
+.topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.music-volume {
+  width: 90px;
+  accent-color: #d18b68;
+}
+
+#music-button[aria-pressed="true"] {
+  background: rgb(209 139 104 / 55%);
+}
+
 .date,
 .eyebrow,
 .section-heading h2 {
