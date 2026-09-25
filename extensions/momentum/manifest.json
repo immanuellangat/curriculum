@@ -1,0 +1,11 @@
+{
+  "manifest_version": 3,
+  "name": "Momentum Focus",
+  "version": "1.0.0",
+  "description": "A calm, focused new-tab dashboard with a daily focus and simple to-do list.",
+  "chrome_url_overrides": {
+    "newtab": "newtab.html"
+  },
+  "permissions": ["storage"],
+  "host_permissions": ["https://api.openai.com/*"]
+}

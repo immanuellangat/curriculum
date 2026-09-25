@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Momentum Focus</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="dashboard">
+      <header class="topbar">
+        <p id="date" class="date"></p>
+        <button id="settings-button" class="icon-button" type="button" aria-label="Open settings">
+          <span aria-hidden="true">⚙</span>
+        </button>
+      </header>
+
+      <section class="hero" aria-labelledby="greeting">
+        <p id="greeting" class="greeting"></p>
+        <p id="clock" class="clock" aria-label="Current time"></p>
+        <blockquote id="quote" class="quote"></blockquote>
+      </section>
+
+      <section class="focus-card" aria-labelledby="focus-heading">
+        <p id="focus-heading" class="eyebrow">Today</p>
+        <label class="focus-label" for="focus">What is your main focus?</label>
+        <input id="focus" class="focus-input" type="text" maxlength="120" placeholder="Make today count" />
+      </section>
+
+      <section class="todo-card" aria-labelledby="todo-heading">
+        <div class="section-heading">
+          <h2 id="todo-heading">Tasks</h2>
+          <span id="task-count" class="task-count"></span>
+        </div>
+        <form id="todo-form" class="todo-form">
+          <input id="todo-input" type="text" maxlength="120" placeholder="Add a task" aria-label="New task" />
+          <button type="submit" class="add-button" aria-label="Add task">+</button>
+        </form>
+        <ul id="todo-list" class="todo-list"></ul>
+      </section>
+    </main>
+
+    <button id="assistant-button" class="assistant-button" type="button" aria-label="Open Focus assistant">
+      <span aria-hidden="true">✦</span>
+      <span>Focus assistant</span>
+    </button>
+
+    <aside id="assistant-panel" class="assistant-panel" aria-labelledby="assistant-heading" hidden>
+      <div class="settings-header">
+        <div>
+          <p id="assistant-mode-label" class="eyebrow">ChatGPT</p>
+          <h2 id="assistant-heading">Focus assistant</h2>
+        </div>
+        <button id="close-assistant" class="icon-button" type="button" aria-label="Close assistant">×</button>
+      </div>
+      <div id="assistant-messages" class="assistant-messages" aria-live="polite"></div>
+      <form id="assistant-form" class="assistant-form">
+        <input id="assistant-input" type="text" maxlength="240" placeholder="Ask for a plan or a nudge..." aria-label="Message the focus assistant" />
+        <button type="submit" class="add-button" aria-label="Send message">↑</button>
+      </form>
+      <button id="clear-assistant" class="clear-assistant" type="button">Clear conversation</button>
+    </aside>
+
+    <aside id="settings-panel" class="settings-panel" aria-labelledby="settings-heading" hidden>
+      <div class="settings-header">
+        <h2 id="settings-heading">Settings</h2>
+        <button id="close-settings" class="icon-button" type="button" aria-label="Close settings">×</button>
+      </div>
+      <label for="name">Your name</label>
+      <input id="name" type="text" maxlength="40" placeholder="Friend" />
+      <label class="toggle">
+        <input id="twenty-four-hour" type="checkbox" />
+        <span>Use 24-hour time</span>
+      </label>
+      <button id="clear-tasks" class="secondary-button" type="button">Clear completed tasks</button>
+
+      <h2 class="settings-subheading">AI assistant</h2>
+      <label class="toggle">
+        <input id="use-chatgpt" type="checkbox" checked />
+        <span>Connect to ChatGPT</span>
+      </label>
+      <label for="openai-key">OpenAI API key</label>
+      <input id="openai-key" type="password" autocomplete="off" placeholder="sk-..." />
+      <label for="openai-model">Model</label>
+      <select id="openai-model">
+        <option value="gpt-4o-mini">gpt-4o-mini</option>
+        <option value="gpt-4o">gpt-4o</option>
+        <option value="gpt-3.5-turbo">gpt-3.5-turbo</option>
+      </select>
+      <p class="settings-note">
+        This assistant is online by default and talks to ChatGPT once you add your OpenAI API key. Your key is stored only on this device and is sent directly to OpenAI. Turn the toggle off to use the private offline coach instead.
+      </p>
+    </aside>
+    <div id="settings-backdrop" class="backdrop" hidden></div>
+
+    <script src="newtab.js"></script>
+  </body>
+</html>

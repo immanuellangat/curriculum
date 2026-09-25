@@ -1,0 +1,52 @@
+### Introduction
+
+Momentum Focus is a small, dependency-free Chrome new-tab extension inspired
+by the calm dashboard experience of Momentum.
+
+It shows the current time and date, a rotating quote, a daily focus prompt, and
+a local to-do list.
+
+### Lesson overview
+
+This section contains a general overview of topics that you will learn in this lesson.
+
+- How to load the extension in Chrome.
+- How to use the dashboard and its local settings.
+- How to use the built-in ChatGPT-powered focus assistant.
+- How to switch to the private offline coach when you prefer not to use the network.
+
+### Install locally
+
+1. Open `chrome://extensions` in Chrome.
+1. Enable **Developer mode**.
+1. Select **Load unpacked**.
+1. Choose this `extensions/momentum` directory.
+1. Open a new tab to see the dashboard.
+
+### Assignment
+
+<div class="lesson-content__panel" markdown="1">
+
+Settings and tasks are stored with `chrome.storage.local`, so nothing is sent
+to a server. To update the extension after editing, use **Reload** on its card
+in `chrome://extensions`.
+
+</div>
+
+### How it works
+
+The dashboard runs entirely in the browser and keeps preferences in local Chrome storage.
+The focus assistant is an online assistant by default: it sends your messages to ChatGPT
+once you add your own OpenAI API key in **Settings**.
+
+Open **Settings**, paste your key under **OpenAI API key**, and pick a model. The key is
+stored only in `chrome.storage.local` on your device and is sent directly to
+`https://api.openai.com` with each message, never through any other server. Turn off
+**Connect to ChatGPT** at any time to switch to a rule-based offline coach that never
+sends messages or personal data over the network.
+
+### Knowledge check
+
+The following questions are an opportunity to reflect on key topics in this lesson. If you can't answer a question, click on it to review the material, but keep in mind you are not expected to memorize or master this knowledge.
+
+- Did you load the extension from the `extensions/momentum` directory?
