@@ -18,6 +18,7 @@ const defaults = {
   openaiApiKey: "",
   openaiModel: "gpt-4o-mini",
   musicVolume: 35,
+  musicTrack: "rain",
 };
 
 let settings = { ...defaults };
@@ -71,25 +72,70 @@ const elements = {
   openaiModel: document.querySelector("#openai-model"),
   musicButton: document.querySelector("#music-button"),
   musicVolume: document.querySelector("#music-volume"),
+  musicTrack: document.querySelector("#music-track"),
 };
 
 let audioContext = null;
-let noiseSource = null;
+let activeSources = [];
 let noiseGain = null;
 let musicPlaying = false;
 
-function createFocusNoiseBuffer(context) {
+function createNoiseBuffer(context, smoothing) {
   const bufferSize = context.sampleRate * 4;
   const buffer = context.createBuffer(1, bufferSize, context.sampleRate);
   const data = buffer.getChannelData(0);
   let lastSample = 0;
   for (let i = 0; i < bufferSize; i += 1) {
     const white = Math.random() * 2 - 1;
-    // Brown-noise style low-pass smoothing gives a soft, rain-like focus tone.
-    lastSample = (lastSample + 0.02 * white) / 1.02;
-    data[i] = lastSample * 3.5;
+    if (smoothing === null) {
+      data[i] = white;
+      continue;
+    }
+    // Low-pass smoothing turns sharp white noise into a softer, rounder tone.
+    lastSample = (lastSample + smoothing * white) / (1 + smoothing);
+    data[i] = lastSample;
   }
   return buffer;
+}
+
+const tracks = {
+  // Brown-noise style low-pass smoothing gives a soft, rain-like focus tone.
+  rain: { type: "noise", smoothing: 0.02, gain: 3.5 },
+  // Raw white noise (no smoothing) sounds like static/hiss.
+  white: { type: "noise", smoothing: null, gain: 0.25 },
+  // Lighter smoothing than rain gives a breezier, airier wind tone.
+  wind: { type: "noise", smoothing: 0.08, gain: 1.6 },
+  // A calm low tone with slow vibrato, built from oscillators instead of noise.
+  tone: { type: "tone" },
+};
+
+function buildNoiseNode(context, config) {
+  const source = context.createBufferSource();
+  source.buffer = createNoiseBuffer(context, config.smoothing);
+  source.loop = true;
+  const shaper = context.createGain();
+  shaper.gain.value = config.gain;
+  source.connect(shaper);
+  return { source, output: shaper, nodes: [source] };
+}
+
+function buildToneNode(context) {
+  const carrier = context.createOscillator();
+  carrier.type = "sine";
+  carrier.frequency.value = 110;
+
+  const lfo = context.createOscillator();
+  lfo.type = "sine";
+  lfo.frequency.value = 0.15;
+  const lfoGain = context.createGain();
+  lfoGain.gain.value = 4;
+  lfo.connect(lfoGain).connect(carrier.frequency);
+
+  const shaper = context.createGain();
+  shaper.gain.value = 0.5;
+  carrier.connect(shaper);
+
+  return { source: carrier, output: shaper, nodes: [carrier, lfo] };
 }
 
 function setMusicVolume(percent) {
@@ -102,25 +148,32 @@ function startMusic() {
   audioContext = audioContext || new (window.AudioContext || window.webkitAudioContext)();
   if (audioContext.state === "suspended") audioContext.resume();
 
-  noiseSource = audioContext.createBufferSource();
-  noiseSource.buffer = createFocusNoiseBuffer(audioContext);
-  noiseSource.loop = true;
+  const config = tracks[settings.musicTrack] || tracks.rain;
+  const built = config.type === "tone" ? buildToneNode(audioContext) : buildNoiseNode(audioContext, config);
 
   noiseGain = audioContext.createGain();
   setMusicVolume(Number(elements.musicVolume.value));
 
-  noiseSource.connect(noiseGain).connect(audioContext.destination);
-  noiseSource.start();
+  built.output.connect(noiseGain).connect(audioContext.destination);
+  built.nodes.forEach((node) => node.start());
+  activeSources = built.nodes;
   musicPlaying = true;
 }
 
 function stopMusic() {
-  if (noiseSource) {
-    noiseSource.stop();
-    noiseSource.disconnect();
-    noiseSource = null;
-  }
+  activeSources.forEach((node) => {
+    node.stop();
+    node.disconnect();
+  });
+  activeSources = [];
   musicPlaying = false;
+}
+
+function restartMusicIfPlaying() {
+  if (musicPlaying) {
+    stopMusic();
+    startMusic();
+  }
 }
 
 function toggleMusic() {
@@ -133,6 +186,7 @@ function toggleMusic() {
   elements.musicButton.setAttribute("aria-label", musicPlaying ? "Pause focus music" : "Play focus music");
   elements.musicButton.querySelector("span").textContent = musicPlaying ? "⏸" : "▶";
   elements.musicVolume.hidden = !musicPlaying;
+  elements.musicTrack.hidden = !musicPlaying;
 }
 
 function getGreeting(hour) {
@@ -378,6 +432,12 @@ elements.musicVolume.addEventListener("input", () => {
   save();
 });
 
+elements.musicTrack.addEventListener("change", () => {
+  settings.musicTrack = elements.musicTrack.value;
+  save();
+  restartMusicIfPlaying();
+});
+
 document.querySelector("#settings-button").addEventListener("click", () => toggleSettings(true));
 document.querySelector("#close-settings").addEventListener("click", () => toggleSettings(false));
 elements.backdrop.addEventListener("click", () => toggleSettings(false));
@@ -420,6 +480,7 @@ readStoredValue(storageKey, (settingsResult) => {
   elements.openaiKey.value = settings.openaiApiKey;
   elements.openaiModel.value = settings.openaiModel;
   elements.musicVolume.value = settings.musicVolume;
+  elements.musicTrack.value = settings.musicTrack;
   updateAssistantModeLabel();
   document.querySelector("#quote").textContent = quotes[new Date().getDate() % quotes.length];
   renderClock();

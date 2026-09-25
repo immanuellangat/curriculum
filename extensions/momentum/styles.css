@@ -62,6 +62,19 @@ button {
   accent-color: #d18b68;
 }
 
+.music-track {
+  padding: 6px 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgb(255 255 255 / 8%);
+  color: var(--text);
+  font-size: 0.78rem;
+}
+
+.music-track option {
+  color: #111;
+}
+
 #music-button[aria-pressed="true"] {
   background: rgb(209 139 104 / 55%);
 }
