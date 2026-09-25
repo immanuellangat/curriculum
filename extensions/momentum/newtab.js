@@ -78,6 +78,7 @@ const elements = {
 let audioContext = null;
 let activeSources = [];
 let noiseGain = null;
+let streamAudio = null;
 let musicPlaying = false;
 
 function createNoiseBuffer(context, smoothing) {
@@ -107,6 +108,8 @@ const tracks = {
   wind: { type: "noise", smoothing: 0.08, gain: 1.6 },
   // A calm low tone with slow vibrato, built from oscillators instead of noise.
   tone: { type: "tone" },
+  // Free, publicly streamed lofi/chillout internet radio (requires a connection).
+  chill: { type: "stream", url: "https://ice1.somafm.com/groovesalad-128-mp3", label: "SomaFM Groove Salad" },
 };
 
 function buildNoiseNode(context, config) {
@@ -139,16 +142,34 @@ function buildToneNode(context) {
 }
 
 function setMusicVolume(percent) {
-  if (noiseGain) {
-    noiseGain.gain.value = Math.max(0, Math.min(100, percent)) / 100;
-  }
+  const volume = Math.max(0, Math.min(100, percent)) / 100;
+  if (noiseGain) noiseGain.gain.value = volume;
+  if (streamAudio) streamAudio.volume = volume;
+}
+
+function startStream(config) {
+  streamAudio = new Audio(config.url);
+  streamAudio.crossOrigin = "anonymous";
+  streamAudio.volume = Number(elements.musicVolume.value) / 100;
+  streamAudio.play().catch(() => {
+    addAssistantMessage("error", "Couldn't reach the online chill radio stream. Check your internet connection and try again.");
+    stopMusic();
+    updateMusicButtonUi();
+  });
+  musicPlaying = true;
 }
 
 function startMusic() {
+  const config = tracks[settings.musicTrack] || tracks.rain;
+
+  if (config.type === "stream") {
+    startStream(config);
+    return;
+  }
+
   audioContext = audioContext || new (window.AudioContext || window.webkitAudioContext)();
   if (audioContext.state === "suspended") audioContext.resume();
 
-  const config = tracks[settings.musicTrack] || tracks.rain;
   const built = config.type === "tone" ? buildToneNode(audioContext) : buildNoiseNode(audioContext, config);
 
   noiseGain = audioContext.createGain();
@@ -166,6 +187,11 @@ function stopMusic() {
     node.disconnect();
   });
   activeSources = [];
+  if (streamAudio) {
+    streamAudio.pause();
+    streamAudio.src = "";
+    streamAudio = null;
+  }
   musicPlaying = false;
 }
 
@@ -176,17 +202,21 @@ function restartMusicIfPlaying() {
   }
 }
 
+function updateMusicButtonUi() {
+  elements.musicButton.setAttribute("aria-pressed", String(musicPlaying));
+  elements.musicButton.setAttribute("aria-label", musicPlaying ? "Pause focus music" : "Play focus music");
+  elements.musicButton.querySelector("span").textContent = musicPlaying ? "⏸" : "▶";
+  elements.musicVolume.hidden = !musicPlaying;
+  elements.musicTrack.hidden = !musicPlaying;
+}
+
 function toggleMusic() {
   if (musicPlaying) {
     stopMusic();
   } else {
     startMusic();
   }
-  elements.musicButton.setAttribute("aria-pressed", String(musicPlaying));
-  elements.musicButton.setAttribute("aria-label", musicPlaying ? "Pause focus music" : "Play focus music");
-  elements.musicButton.querySelector("span").textContent = musicPlaying ? "⏸" : "▶";
-  elements.musicVolume.hidden = !musicPlaying;
-  elements.musicTrack.hidden = !musicPlaying;
+  updateMusicButtonUi();
 }
 
 function getGreeting(hour) {

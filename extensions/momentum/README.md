@@ -14,6 +14,7 @@ This section contains a general overview of topics that you will learn in this l
 - How to use the dashboard and its local settings.
 - How to use the built-in ChatGPT-powered focus assistant.
 - How to switch to the private offline coach when you prefer not to use the network.
+- How to play focus music, including an online chill radio stream.
 
 ### Install locally
 
@@ -44,6 +45,11 @@ stored only in `chrome.storage.local` on your device and is sent directly to
 `https://api.openai.com` with each message, never through any other server. Turn off
 **Connect to ChatGPT** at any time to switch to a rule-based offline coach that never
 sends messages or personal data over the network.
+
+The play button in the top-left corner offers focus music. Rain, white noise, wind, and
+calm tone are generated in the browser with the Web Audio API, so they work fully offline.
+**Chill radio (online)** instead streams a free lofi/chillout internet radio station
+(SomaFM's Groove Salad) and requires an active internet connection.
 
 ### Knowledge check
 
