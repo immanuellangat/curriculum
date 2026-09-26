@@ -205,6 +205,11 @@ input::placeholder {
   margin-top: 0;
 }
 
+.focus-countdown-actions {
+  display: flex;
+  gap: 10px;
+}
+
 .focus-countdown {
   margin-top: 18px;
   padding: 18px;

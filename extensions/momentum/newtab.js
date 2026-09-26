@@ -80,6 +80,7 @@ const elements = {
   focusCountdown: document.querySelector("#focus-countdown"),
   focusCountdownTime: document.querySelector("#focus-countdown-time"),
   focusCountdownTask: document.querySelector("#focus-countdown-task"),
+  focusPause: document.querySelector("#focus-pause"),
   focusStop: document.querySelector("#focus-stop"),
   focusHistoryList: document.querySelector("#focus-history-list"),
 };
@@ -250,7 +251,9 @@ let focusTimer = {
   intervalId: null,
   endTime: 0,
   totalSeconds: 0,
+  remainingSeconds: 0,
   task: "",
+  isPaused: false,
 };
 
 function formatCountdown(totalSeconds) {
@@ -311,13 +314,17 @@ function resetFocusUi() {
   elements.focusCountdown.hidden = true;
   elements.focus.disabled = false;
   elements.focusDuration.disabled = false;
+  elements.focusPause.textContent = "Pause";
 }
 
 function finishFocusSession(completed) {
-  const remainingSeconds = Math.max(0, Math.round((focusTimer.endTime - Date.now()) / 1000));
+  const remainingSeconds = focusTimer.isPaused
+    ? focusTimer.remainingSeconds
+    : Math.max(0, Math.round((focusTimer.endTime - Date.now()) / 1000));
   const actualSeconds = completed ? focusTimer.totalSeconds : focusTimer.totalSeconds - remainingSeconds;
 
   stopFocusTimerInterval();
+  focusTimer.isPaused = false;
   settings.focusHistory.push({
     task: focusTimer.task,
     plannedMinutes: Math.round(focusTimer.totalSeconds / 60),
@@ -340,6 +347,7 @@ function finishFocusSession(completed) {
 function tickFocusCountdown() {
   const remainingMs = focusTimer.endTime - Date.now();
   const remainingSeconds = Math.ceil(remainingMs / 1000);
+  focusTimer.remainingSeconds = Math.max(0, remainingSeconds);
 
   if (remainingSeconds <= 0) {
     elements.focusCountdownTime.textContent = "0:00";
@@ -348,6 +356,31 @@ function tickFocusCountdown() {
   }
 
   elements.focusCountdownTime.textContent = formatCountdown(remainingSeconds);
+}
+
+function pauseFocusSession() {
+  if (focusTimer.isPaused) return;
+  focusTimer.remainingSeconds = Math.max(0, Math.ceil((focusTimer.endTime - Date.now()) / 1000));
+  stopFocusTimerInterval();
+  focusTimer.isPaused = true;
+  elements.focusPause.textContent = "Resume";
+}
+
+function resumeFocusSession() {
+  if (!focusTimer.isPaused) return;
+  focusTimer.endTime = Date.now() + focusTimer.remainingSeconds * 1000;
+  focusTimer.isPaused = false;
+  elements.focusPause.textContent = "Pause";
+  stopFocusTimerInterval();
+  focusTimer.intervalId = setInterval(tickFocusCountdown, 1000);
+}
+
+function togglePauseFocusSession() {
+  if (focusTimer.isPaused) {
+    resumeFocusSession();
+  } else {
+    pauseFocusSession();
+  }
 }
 
 function startFocusSession() {
@@ -359,12 +392,15 @@ function startFocusSession() {
 
   focusTimer.totalSeconds = minutes * 60;
   focusTimer.endTime = Date.now() + focusTimer.totalSeconds * 1000;
+  focusTimer.remainingSeconds = focusTimer.totalSeconds;
   focusTimer.task = task;
+  focusTimer.isPaused = false;
 
   elements.focusStartRow.hidden = true;
   elements.focusCountdown.hidden = false;
   elements.focus.disabled = true;
   elements.focusDuration.disabled = true;
+  elements.focusPause.textContent = "Pause";
   elements.focusCountdownTask.textContent = `Focusing on "${task}"`;
   elements.focusCountdownTime.textContent = formatCountdown(focusTimer.totalSeconds);
 
@@ -556,6 +592,7 @@ elements.focus.addEventListener("change", () => {
 });
 
 elements.focusStart.addEventListener("click", () => startFocusSession());
+elements.focusPause.addEventListener("click", () => togglePauseFocusSession());
 elements.focusStop.addEventListener("click", () => finishFocusSession(false));
 
 document.querySelector("#clear-focus-history").addEventListener("click", () => {
