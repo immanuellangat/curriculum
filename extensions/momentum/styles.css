@@ -79,6 +79,121 @@ button {
   background: rgb(209 139 104 / 55%);
 }
 
+.links-widget {
+  position: relative;
+}
+
+#links-button[aria-expanded="true"] {
+  background: rgb(255 255 255 / 24%);
+}
+
+.links-dropdown {
+  position: absolute;
+  z-index: 4;
+  top: 44px;
+  left: 0;
+  width: 240px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #102631;
+  box-shadow: 0 12px 30px rgb(0 0 0 / 30%);
+}
+
+.links-dropdown[hidden] {
+  display: none;
+}
+
+.links-list {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.links-empty {
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-style: italic;
+}
+
+.links-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: 8px;
+  background: rgb(255 255 255 / 6%);
+}
+
+.links-item .link-favicon {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #fff;
+  color: #102631;
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+.links-item a {
+  overflow: hidden;
+  flex: 1;
+  min-width: 0;
+  color: var(--text);
+  text-decoration: none;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.86rem;
+}
+
+.links-item a:hover {
+  text-decoration: underline;
+}
+
+.links-item .delete-link {
+  flex-shrink: 0;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  font-size: 1rem;
+}
+
+.links-form {
+  display: flex;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.links-form input {
+  min-width: 0;
+  flex: 1;
+  padding: 6px 8px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: rgb(0 0 0 / 12%);
+  color: var(--text);
+  font-size: 0.78rem;
+}
+
+.links-form .add-button {
+  flex-shrink: 0;
+  width: 30px;
+  height: 30px;
+  font-size: 1.15rem;
+}
+
+#settings-tab-links .links-list {
+  max-height: 240px;
+}
+
 .date,
 .eyebrow,
 .section-heading h2 {
@@ -393,6 +508,33 @@ input::placeholder {
   padding-top: 20px;
   border-top: 1px solid var(--line);
   font-size: 1rem;
+}
+
+.settings-tabs {
+  display: flex;
+  gap: 6px;
+  margin-top: 20px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--line);
+}
+
+.settings-tab {
+  padding: 7px 12px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.settings-tab[aria-selected="true"] {
+  background: rgb(255 255 255 / 16%);
+  color: var(--text);
+}
+
+.settings-tab-panel[hidden] {
+  display: none;
 }
 
 .settings-note {

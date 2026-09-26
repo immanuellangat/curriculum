@@ -21,6 +21,19 @@
             <option value="chill">Chill radio (online)</option>
           </select>
           <input id="music-volume" class="music-volume" type="range" min="0" max="100" value="35" aria-label="Focus music volume" hidden />
+          <div class="links-widget">
+            <button id="links-button" class="icon-button" type="button" aria-label="Open quick links" aria-expanded="false">
+              <span aria-hidden="true">🔗</span>
+            </button>
+            <div id="links-dropdown" class="links-dropdown" hidden>
+              <ul class="links-list" aria-label="Saved links"></ul>
+              <form class="links-form">
+                <input class="link-label" type="text" maxlength="40" placeholder="Name" aria-label="Link name" />
+                <input class="link-url" type="text" maxlength="300" placeholder="https://example.com" aria-label="Link URL" />
+                <button type="submit" class="add-button" aria-label="Add link">+</button>
+              </form>
+            </div>
+          </div>
           <p id="date" class="date"></p>
         </div>
         <button id="settings-button" class="icon-button" type="button" aria-label="Open settings">
@@ -105,30 +118,49 @@
         <h2 id="settings-heading">Settings</h2>
         <button id="close-settings" class="icon-button" type="button" aria-label="Close settings">×</button>
       </div>
-      <label for="name">Your name</label>
-      <input id="name" type="text" maxlength="40" placeholder="Friend" />
-      <label class="toggle">
-        <input id="twenty-four-hour" type="checkbox" />
-        <span>Use 24-hour time</span>
-      </label>
-      <button id="clear-tasks" class="secondary-button" type="button">Clear completed tasks</button>
+      <div class="settings-tabs" role="tablist">
+        <button class="settings-tab" type="button" role="tab" data-tab="general" aria-selected="true">General</button>
+        <button class="settings-tab" type="button" role="tab" data-tab="links" aria-selected="false">Links</button>
+        <button class="settings-tab" type="button" role="tab" data-tab="ai" aria-selected="false">AI assistant</button>
+      </div>
 
-      <h2 class="settings-subheading">AI assistant</h2>
-      <label class="toggle">
-        <input id="use-chatgpt" type="checkbox" checked />
-        <span>Connect to ChatGPT</span>
-      </label>
-      <label for="openai-key">OpenAI API key</label>
-      <input id="openai-key" type="password" autocomplete="off" placeholder="sk-..." />
-      <label for="openai-model">Model</label>
-      <select id="openai-model">
-        <option value="gpt-4o-mini">gpt-4o-mini</option>
-        <option value="gpt-4o">gpt-4o</option>
-        <option value="gpt-3.5-turbo">gpt-3.5-turbo</option>
-      </select>
-      <p class="settings-note">
-        This assistant is online by default and talks to ChatGPT once you add your OpenAI API key. Your key is stored only on this device and is sent directly to OpenAI. Turn the toggle off to use the private offline coach instead.
-      </p>
+      <div id="settings-tab-general" class="settings-tab-panel" role="tabpanel">
+        <label for="name">Your name</label>
+        <input id="name" type="text" maxlength="40" placeholder="Friend" />
+        <label class="toggle">
+          <input id="twenty-four-hour" type="checkbox" />
+          <span>Use 24-hour time</span>
+        </label>
+        <button id="clear-tasks" class="secondary-button" type="button">Clear completed tasks</button>
+      </div>
+
+      <div id="settings-tab-links" class="settings-tab-panel" role="tabpanel" hidden>
+        <p class="settings-note">Manage the quick links shown from the 🔗 button on your dashboard.</p>
+        <ul class="links-list" aria-label="Saved links"></ul>
+        <form class="links-form">
+          <input class="link-label" type="text" maxlength="40" placeholder="Name" aria-label="Link name" />
+          <input class="link-url" type="text" maxlength="300" placeholder="https://example.com" aria-label="Link URL" />
+          <button type="submit" class="add-button" aria-label="Add link">+</button>
+        </form>
+      </div>
+
+      <div id="settings-tab-ai" class="settings-tab-panel" role="tabpanel" hidden>
+        <label class="toggle">
+          <input id="use-chatgpt" type="checkbox" checked />
+          <span>Connect to ChatGPT</span>
+        </label>
+        <label for="openai-key">OpenAI API key</label>
+        <input id="openai-key" type="password" autocomplete="off" placeholder="sk-..." />
+        <label for="openai-model">Model</label>
+        <select id="openai-model">
+          <option value="gpt-4o-mini">gpt-4o-mini</option>
+          <option value="gpt-4o">gpt-4o</option>
+          <option value="gpt-3.5-turbo">gpt-3.5-turbo</option>
+        </select>
+        <p class="settings-note">
+          This assistant is online by default and talks to ChatGPT once you add your OpenAI API key. Your key is stored only on this device and is sent directly to OpenAI. Turn the toggle off to use the private offline coach instead.
+        </p>
+      </div>
     </aside>
     <div id="settings-backdrop" class="backdrop" hidden></div>
 

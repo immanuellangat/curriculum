@@ -20,6 +20,7 @@ const defaults = {
   musicVolume: 35,
   musicTrack: "rain",
   focusHistory: [],
+  links: [],
 };
 
 let settings = { ...defaults };
@@ -83,6 +84,8 @@ const elements = {
   focusPause: document.querySelector("#focus-pause"),
   focusStop: document.querySelector("#focus-stop"),
   focusHistoryList: document.querySelector("#focus-history-list"),
+  linksButton: document.querySelector("#links-button"),
+  linksDropdown: document.querySelector("#links-dropdown"),
 };
 
 let audioContext = null;
@@ -575,6 +578,65 @@ function toggleSettings(open) {
   if (open) elements.name.focus();
 }
 
+function faviconLetter(label, url) {
+  const source = label.trim() || url.replace(/^https?:\/\/(www\.)?/i, "");
+  return source.charAt(0).toUpperCase() || "?";
+}
+
+function renderLinks() {
+  document.querySelectorAll(".links-list").forEach((list) => {
+    list.replaceChildren();
+
+    if (!settings.links.length) {
+      const empty = document.createElement("li");
+      empty.className = "links-empty";
+      empty.textContent = "No links yet — add one below.";
+      list.append(empty);
+      return;
+    }
+
+    settings.links.forEach((link) => {
+      const item = document.createElement("li");
+      item.className = "links-item";
+
+      const favicon = document.createElement("span");
+      favicon.className = "link-favicon";
+      favicon.setAttribute("aria-hidden", "true");
+      favicon.textContent = faviconLetter(link.label, link.url);
+
+      const anchor = document.createElement("a");
+      anchor.href = link.url;
+      anchor.target = "_blank";
+      anchor.rel = "noopener noreferrer";
+      anchor.textContent = link.label || link.url;
+
+      const deleteButton = document.createElement("button");
+      deleteButton.type = "button";
+      deleteButton.className = "delete-link";
+      deleteButton.textContent = "×";
+      deleteButton.setAttribute("aria-label", `Remove ${link.label || link.url}`);
+      deleteButton.addEventListener("click", () => {
+        settings.links = settings.links.filter((candidate) => candidate.id !== link.id);
+        save();
+        renderLinks();
+      });
+
+      item.append(favicon, anchor, deleteButton);
+      list.append(item);
+    });
+  });
+}
+
+function addLink(rawLabel, rawUrl) {
+  const label = rawLabel.trim();
+  let url = rawUrl.trim();
+  if (!url) return;
+  if (!/^https?:\/\//i.test(url)) url = `https://${url}`;
+  settings.links.push({ id: crypto.randomUUID(), label, url });
+  save();
+  renderLinks();
+}
+
 document.querySelector("#todo-form").addEventListener("submit", (event) => {
   event.preventDefault();
   const input = document.querySelector("#todo-input");
@@ -617,6 +679,41 @@ document.querySelector("#clear-tasks").addEventListener("click", () => {
   settings.tasks = settings.tasks.filter((task) => !task.completed);
   save();
   renderTasks();
+});
+
+document.querySelectorAll(".links-form").forEach((form) => {
+  form.addEventListener("submit", (event) => {
+    event.preventDefault();
+    const label = form.querySelector(".link-label");
+    const url = form.querySelector(".link-url");
+    addLink(label.value, url.value);
+    label.value = "";
+    url.value = "";
+  });
+});
+
+elements.linksButton.addEventListener("click", () => {
+  const isOpen = !elements.linksDropdown.hidden;
+  elements.linksDropdown.hidden = isOpen;
+  elements.linksButton.setAttribute("aria-expanded", String(!isOpen));
+});
+
+document.addEventListener("click", (event) => {
+  if (elements.linksDropdown.hidden) return;
+  if (event.target.closest(".links-widget")) return;
+  elements.linksDropdown.hidden = true;
+  elements.linksButton.setAttribute("aria-expanded", "false");
+});
+
+document.querySelectorAll(".settings-tab").forEach((tab) => {
+  tab.addEventListener("click", () => {
+    document.querySelectorAll(".settings-tab").forEach((candidate) => {
+      candidate.setAttribute("aria-selected", String(candidate === tab));
+    });
+    document.querySelectorAll(".settings-tab-panel").forEach((panel) => {
+      panel.hidden = panel.id !== `settings-tab-${tab.dataset.tab}`;
+    });
+  });
 });
 
 elements.useChatGpt.addEventListener("change", () => {
@@ -685,6 +782,7 @@ readStoredValue(storageKey, (settingsResult) => {
       ? assistantResult[assistantStorageKey]
       : [];
     if (!Array.isArray(settings.focusHistory)) settings.focusHistory = [];
+  if (!Array.isArray(settings.links)) settings.links = [];
   elements.focus.value = settings.focus;
   elements.name.value = settings.name;
   elements.twentyFourHour.checked = settings.use24Hour;
@@ -699,6 +797,7 @@ readStoredValue(storageKey, (settingsResult) => {
   renderTasks();
   renderAssistant();
   renderFocusHistory();
+  renderLinks();
   if (!assistantMessages.length) {
     addAssistantMessage("assistant", welcomeMessage());
   }

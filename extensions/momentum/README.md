@@ -53,9 +53,18 @@ calm tone are generated in the browser with the Web Audio API, so they work full
 (SomaFM's Groove Salad) and requires an active internet connection.
 
 Type your main focus, pick a session length, and select **Start focus** to begin a
-countdown timer. Select **Stop session** to end early. Every session, whether finished
-or stopped early, is added to **Focus history** below, which is stored in
-`chrome.storage.local` so it persists between visits. Use **Clear history** to remove it.
+countdown timer. Select **Pause** to hold the countdown and **Resume** to continue, or
+**Stop session** to end early. Every session, whether finished or stopped early, is added
+to **Focus history** below, which is stored in `chrome.storage.local` so it persists
+between visits. Use **Clear history** to remove it.
+
+The 🔗 button in the top-left corner opens a quick-links menu. Add a name and URL to
+save a shortcut, click a saved link to open it in a new tab, and use **×** to remove it.
+The same list is also editable from the **Links** tab in **Settings**, since both share
+the same saved data.
+
+**Settings** is organized into tabs — **General**, **Links**, and **AI assistant** — so
+related options are grouped together instead of one long scrolling list.
 
 ### Knowledge check
 
