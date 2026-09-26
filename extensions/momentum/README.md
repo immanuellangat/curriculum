@@ -63,8 +63,13 @@ save a shortcut, click a saved link to open it in a new tab, and use **×** to r
 The same list is also editable from the **Links** tab in **Settings**, since both share
 the same saved data.
 
-**Settings** is organized into tabs — **General**, **Links**, and **AI assistant** — so
-related options are grouped together instead of one long scrolling list.
+Starting a focus session also silences browser notification pop-ups from other sites,
+so nothing interrupts you. Look for the **🔕 Notifications paused** note under the
+countdown while a session is active — this can be turned off from the **Focus** tab
+in **Settings** if you'd rather keep notifications on.
+
+**Settings** is organized into tabs — **General**, **Focus**, **Links**, and **AI
+assistant** — so related options are grouped together instead of one long scrolling list.
 
 ### Knowledge check
 

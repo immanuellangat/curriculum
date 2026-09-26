@@ -66,6 +66,7 @@
         <div id="focus-countdown" class="focus-countdown" hidden>
           <p id="focus-countdown-time" class="focus-countdown-time" aria-live="polite">25:00</p>
           <p id="focus-countdown-task" class="focus-countdown-task"></p>
+          <p id="focus-dnd-indicator" class="focus-dnd-indicator" hidden>🔕 Notifications paused</p>
           <div class="focus-countdown-actions">
             <button id="focus-pause" class="secondary-button" type="button">Pause</button>
             <button id="focus-stop" class="secondary-button" type="button">Stop session</button>
@@ -120,6 +121,7 @@
       </div>
       <div class="settings-tabs" role="tablist">
         <button class="settings-tab" type="button" role="tab" data-tab="general" aria-selected="true">General</button>
+        <button class="settings-tab" type="button" role="tab" data-tab="focus" aria-selected="false">Focus</button>
         <button class="settings-tab" type="button" role="tab" data-tab="links" aria-selected="false">Links</button>
         <button class="settings-tab" type="button" role="tab" data-tab="ai" aria-selected="false">AI assistant</button>
       </div>
@@ -132,6 +134,18 @@
           <span>Use 24-hour time</span>
         </label>
         <button id="clear-tasks" class="secondary-button" type="button">Clear completed tasks</button>
+      </div>
+
+      <div id="settings-tab-focus" class="settings-tab-panel" role="tabpanel" hidden>
+        <label class="toggle">
+          <input id="block-notifications" type="checkbox" checked />
+          <span>Block browser notifications while focusing</span>
+        </label>
+        <p class="settings-note">
+          While a focus session is running (including while paused), other sites'
+          notification pop-ups are silenced so you are not interrupted. They turn back on
+          automatically as soon as the session ends or is stopped.
+        </p>
       </div>
 
       <div id="settings-tab-links" class="settings-tab-panel" role="tabpanel" hidden>

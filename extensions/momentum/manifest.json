@@ -6,6 +6,6 @@
   "chrome_url_overrides": {
     "newtab": "newtab.html"
   },
-  "permissions": ["storage", "tabs"],
+  "permissions": ["storage", "tabs", "contentSettings"],
   "host_permissions": ["https://api.openai.com/*"]
 }

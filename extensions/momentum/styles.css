@@ -349,6 +349,14 @@ input::placeholder {
   overflow-wrap: anywhere;
 }
 
+.focus-dnd-indicator {
+  margin: 0 0 14px;
+  color: #a7e3b0;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
 .focus-history-header {
   display: flex;
   align-items: baseline;

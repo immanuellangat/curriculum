@@ -21,6 +21,7 @@ const defaults = {
   musicTrack: "rain",
   focusHistory: [],
   links: [],
+  blockNotifications: true,
 };
 
 let settings = { ...defaults };
@@ -50,6 +51,22 @@ function writeStoredValue(key, value) {
     window.localStorage.setItem(key, JSON.stringify(value));
   } catch {
     // The dashboard still works for the current page when storage is unavailable.
+  }
+}
+
+function setNotificationsBlocked(blocked) {
+  if (!settings.blockNotifications) return;
+  if (typeof chrome === "undefined" || !chrome.contentSettings?.notifications) return;
+
+  // Silences other sites' notification pop-ups while a focus session is running
+  // (blocked), and restores the default behavior once it ends (cleared).
+  if (blocked) {
+    chrome.contentSettings.notifications.set({
+      primaryPattern: "<all_urls>",
+      setting: "block",
+    });
+  } else {
+    chrome.contentSettings.notifications.clear({});
   }
 }
 
@@ -84,6 +101,8 @@ const elements = {
   focusPause: document.querySelector("#focus-pause"),
   focusStop: document.querySelector("#focus-stop"),
   focusHistoryList: document.querySelector("#focus-history-list"),
+  focusDndIndicator: document.querySelector("#focus-dnd-indicator"),
+  blockNotifications: document.querySelector("#block-notifications"),
   linksButton: document.querySelector("#links-button"),
   linksDropdown: document.querySelector("#links-dropdown"),
 };
@@ -318,6 +337,8 @@ function resetFocusUi() {
   elements.focus.disabled = false;
   elements.focusDuration.disabled = false;
   elements.focusPause.textContent = "Pause";
+  setNotificationsBlocked(false);
+  elements.focusDndIndicator.hidden = true;
 }
 
 function finishFocusSession(completed) {
@@ -406,6 +427,8 @@ function startFocusSession() {
   elements.focusPause.textContent = "Pause";
   elements.focusCountdownTask.textContent = `Focusing on "${task}"`;
   elements.focusCountdownTime.textContent = formatCountdown(focusTimer.totalSeconds);
+  setNotificationsBlocked(true);
+  elements.focusDndIndicator.hidden = !settings.blockNotifications;
 
   stopFocusTimerInterval();
   focusTimer.intervalId = setInterval(tickFocusCountdown, 1000);
@@ -686,6 +709,18 @@ elements.twentyFourHour.addEventListener("change", () => {
   renderClock();
 });
 
+elements.blockNotifications.addEventListener("change", () => {
+  settings.blockNotifications = elements.blockNotifications.checked;
+  save();
+  if (!settings.blockNotifications) {
+    setNotificationsBlocked(false);
+    elements.focusDndIndicator.hidden = true;
+  } else if (!elements.focusCountdown.hidden) {
+    setNotificationsBlocked(true);
+    elements.focusDndIndicator.hidden = false;
+  }
+});
+
 document.querySelector("#clear-tasks").addEventListener("click", () => {
   settings.tasks = settings.tasks.filter((task) => !task.completed);
   save();
@@ -802,6 +837,7 @@ readStoredValue(storageKey, (settingsResult) => {
   elements.openaiModel.value = settings.openaiModel;
   elements.musicVolume.value = settings.musicVolume;
   elements.musicTrack.value = settings.musicTrack;
+  elements.blockNotifications.checked = settings.blockNotifications;
   updateAssistantModeLabel();
   document.querySelector("#quote").textContent = quotes[new Date().getDate() % quotes.length];
   renderClock();
