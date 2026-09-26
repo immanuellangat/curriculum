@@ -38,6 +38,29 @@
         <p id="focus-heading" class="eyebrow">Today</p>
         <label class="focus-label" for="focus">What is your main focus?</label>
         <input id="focus" class="focus-input" type="text" maxlength="120" placeholder="Make today count" />
+
+        <div id="focus-start-row" class="focus-start-row">
+          <select id="focus-duration" aria-label="Focus session length">
+            <option value="5">5 min</option>
+            <option value="15">15 min</option>
+            <option value="25" selected>25 min</option>
+            <option value="45">45 min</option>
+            <option value="60">60 min</option>
+          </select>
+          <button id="focus-start" class="secondary-button" type="button">Start focus</button>
+        </div>
+
+        <div id="focus-countdown" class="focus-countdown" hidden>
+          <p id="focus-countdown-time" class="focus-countdown-time" aria-live="polite">25:00</p>
+          <p id="focus-countdown-task" class="focus-countdown-task"></p>
+          <button id="focus-stop" class="secondary-button" type="button">Stop session</button>
+        </div>
+
+        <div class="focus-history-header">
+          <h2 class="focus-history-heading">Focus history</h2>
+          <button id="clear-focus-history" class="clear-assistant" type="button">Clear history</button>
+        </div>
+        <ul id="focus-history-list" class="focus-history-list"></ul>
       </section>
 
       <section class="todo-card" aria-labelledby="todo-heading">

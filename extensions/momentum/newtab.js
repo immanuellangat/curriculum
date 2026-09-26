@@ -19,6 +19,7 @@ const defaults = {
   openaiModel: "gpt-4o-mini",
   musicVolume: 35,
   musicTrack: "rain",
+  focusHistory: [],
 };
 
 let settings = { ...defaults };
@@ -73,6 +74,14 @@ const elements = {
   musicButton: document.querySelector("#music-button"),
   musicVolume: document.querySelector("#music-volume"),
   musicTrack: document.querySelector("#music-track"),
+  focusStartRow: document.querySelector("#focus-start-row"),
+  focusDuration: document.querySelector("#focus-duration"),
+  focusStart: document.querySelector("#focus-start"),
+  focusCountdown: document.querySelector("#focus-countdown"),
+  focusCountdownTime: document.querySelector("#focus-countdown-time"),
+  focusCountdownTask: document.querySelector("#focus-countdown-task"),
+  focusStop: document.querySelector("#focus-stop"),
+  focusHistoryList: document.querySelector("#focus-history-list"),
 };
 
 let audioContext = null;
@@ -235,6 +244,132 @@ function renderClock() {
     day: "numeric",
   });
   elements.greeting.textContent = `${getGreeting(now.getHours())}${settings.name ? `, ${settings.name}` : ""}.`;
+}
+
+let focusTimer = {
+  intervalId: null,
+  endTime: 0,
+  totalSeconds: 0,
+  task: "",
+};
+
+function formatCountdown(totalSeconds) {
+  const clamped = Math.max(0, totalSeconds);
+  const minutes = Math.floor(clamped / 60);
+  const seconds = clamped % 60;
+  return `${minutes}:${String(seconds).padStart(2, "0")}`;
+}
+
+function formatHistoryTimestamp(isoString) {
+  const date = new Date(isoString);
+  return date.toLocaleString([], { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
+}
+
+function renderFocusHistory() {
+  elements.focusHistoryList.replaceChildren();
+
+  if (!settings.focusHistory.length) {
+    const empty = document.createElement("li");
+    empty.className = "focus-history-empty";
+    empty.textContent = "No focus sessions yet. Start one above to build your history.";
+    elements.focusHistoryList.append(empty);
+    return;
+  }
+
+  settings.focusHistory
+    .slice()
+    .reverse()
+    .forEach((entry) => {
+      const item = document.createElement("li");
+      item.className = `focus-history-item ${entry.completed ? "completed" : "stopped"}`;
+
+      const task = document.createElement("span");
+      task.className = "focus-history-task";
+      task.textContent = entry.task || "Untitled focus";
+
+      const meta = document.createElement("span");
+      meta.className = "focus-history-meta";
+      const statusText = entry.completed
+        ? `${entry.plannedMinutes} min ✓`
+        : `stopped at ${formatCountdown(entry.actualSeconds)}`;
+      meta.textContent = `${statusText} · ${formatHistoryTimestamp(entry.timestamp)}`;
+
+      item.append(task, meta);
+      elements.focusHistoryList.append(item);
+    });
+}
+
+function stopFocusTimerInterval() {
+  if (focusTimer.intervalId) {
+    clearInterval(focusTimer.intervalId);
+    focusTimer.intervalId = null;
+  }
+}
+
+function resetFocusUi() {
+  elements.focusStartRow.hidden = false;
+  elements.focusCountdown.hidden = true;
+  elements.focus.disabled = false;
+  elements.focusDuration.disabled = false;
+}
+
+function finishFocusSession(completed) {
+  const remainingSeconds = Math.max(0, Math.round((focusTimer.endTime - Date.now()) / 1000));
+  const actualSeconds = completed ? focusTimer.totalSeconds : focusTimer.totalSeconds - remainingSeconds;
+
+  stopFocusTimerInterval();
+  settings.focusHistory.push({
+    task: focusTimer.task,
+    plannedMinutes: Math.round(focusTimer.totalSeconds / 60),
+    actualSeconds: Math.max(0, actualSeconds),
+    completed,
+    timestamp: new Date().toISOString(),
+  });
+  save();
+  renderFocusHistory();
+  resetFocusUi();
+
+  if (completed) {
+    addAssistantMessage(
+      "assistant",
+      `Nice work! You finished a ${Math.round(focusTimer.totalSeconds / 60)}-minute focus session on "${focusTimer.task}".`,
+    );
+  }
+}
+
+function tickFocusCountdown() {
+  const remainingMs = focusTimer.endTime - Date.now();
+  const remainingSeconds = Math.ceil(remainingMs / 1000);
+
+  if (remainingSeconds <= 0) {
+    elements.focusCountdownTime.textContent = "0:00";
+    finishFocusSession(true);
+    return;
+  }
+
+  elements.focusCountdownTime.textContent = formatCountdown(remainingSeconds);
+}
+
+function startFocusSession() {
+  const task = elements.focus.value.trim() || "Untitled focus";
+  const minutes = Number(elements.focusDuration.value) || 25;
+
+  settings.focus = task;
+  save();
+
+  focusTimer.totalSeconds = minutes * 60;
+  focusTimer.endTime = Date.now() + focusTimer.totalSeconds * 1000;
+  focusTimer.task = task;
+
+  elements.focusStartRow.hidden = true;
+  elements.focusCountdown.hidden = false;
+  elements.focus.disabled = true;
+  elements.focusDuration.disabled = true;
+  elements.focusCountdownTask.textContent = `Focusing on "${task}"`;
+  elements.focusCountdownTime.textContent = formatCountdown(focusTimer.totalSeconds);
+
+  stopFocusTimerInterval();
+  focusTimer.intervalId = setInterval(tickFocusCountdown, 1000);
 }
 
 function save() {
@@ -420,6 +555,15 @@ elements.focus.addEventListener("change", () => {
   save();
 });
 
+elements.focusStart.addEventListener("click", () => startFocusSession());
+elements.focusStop.addEventListener("click", () => finishFocusSession(false));
+
+document.querySelector("#clear-focus-history").addEventListener("click", () => {
+  settings.focusHistory = [];
+  save();
+  renderFocusHistory();
+});
+
 elements.name.addEventListener("input", () => {
   settings.name = elements.name.value.trim();
   save();
@@ -503,6 +647,7 @@ readStoredValue(storageKey, (settingsResult) => {
     assistantMessages = Array.isArray(assistantResult[assistantStorageKey])
       ? assistantResult[assistantStorageKey]
       : [];
+    if (!Array.isArray(settings.focusHistory)) settings.focusHistory = [];
   elements.focus.value = settings.focus;
   elements.name.value = settings.name;
   elements.twentyFourHour.checked = settings.use24Hour;
@@ -516,6 +661,7 @@ readStoredValue(storageKey, (settingsResult) => {
   renderClock();
   renderTasks();
   renderAssistant();
+  renderFocusHistory();
   if (!assistantMessages.length) {
     addAssistantMessage("assistant", welcomeMessage());
   }

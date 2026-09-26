@@ -180,6 +180,117 @@ input::placeholder {
   color: rgb(255 255 255 / 48%);
 }
 
+.focus-start-row {
+  display: flex;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.focus-start-row select {
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgb(255 255 255 / 8%);
+  color: var(--text);
+}
+
+.focus-start-row select option {
+  color: #111;
+}
+
+.focus-start-row .secondary-button,
+.focus-countdown .secondary-button {
+  width: auto;
+  flex: 1;
+  margin-top: 0;
+}
+
+.focus-countdown {
+  margin-top: 18px;
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: rgb(255 255 255 / 6%);
+  text-align: center;
+}
+
+.focus-countdown-time {
+  margin: 0;
+  font-size: 2.6rem;
+  font-weight: 200;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+.focus-countdown-task {
+  margin: 4px 0 14px;
+  color: var(--muted);
+  font-size: 0.9rem;
+  overflow-wrap: anywhere;
+}
+
+.focus-history-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-top: 26px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+}
+
+.focus-history-heading {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.focus-history-list {
+  display: grid;
+  gap: 6px;
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+  max-height: 180px;
+  overflow-y: auto;
+}
+
+.focus-history-empty {
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-style: italic;
+}
+
+.focus-history-item {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: rgb(255 255 255 / 5%);
+  font-size: 0.82rem;
+}
+
+.focus-history-item .focus-history-task {
+  overflow: hidden;
+  color: var(--text);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.focus-history-item .focus-history-meta {
+  flex-shrink: 0;
+  color: var(--muted);
+}
+
+.focus-history-item.completed .focus-history-meta {
+  color: #a7e3b0;
+}
+
+.focus-history-item.stopped .focus-history-meta {
+  color: #f0c48a;
+}
+
 .todo-form {
   display: flex;
   gap: 12px;
