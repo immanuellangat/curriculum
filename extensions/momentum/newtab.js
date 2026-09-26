@@ -609,6 +609,17 @@ function renderLinks() {
       anchor.target = "_blank";
       anchor.rel = "noopener noreferrer";
       anchor.textContent = link.label || link.url;
+      anchor.addEventListener("click", (event) => {
+        // The Chrome new-tab override page can swallow a plain target="_blank"
+        // navigation, so open the tab explicitly through the extension API
+        // (falling back to window.open on a normal web page).
+        event.preventDefault();
+        if (typeof chrome !== "undefined" && chrome.tabs?.create) {
+          chrome.tabs.create({ url: link.url });
+        } else {
+          window.open(link.url, "_blank", "noopener,noreferrer");
+        }
+      });
 
       const deleteButton = document.createElement("button");
       deleteButton.type = "button";
