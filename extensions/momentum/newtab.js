@@ -19,6 +19,8 @@ const defaults = {
   openaiModel: "gpt-4o-mini",
   deepseekApiKey: "",
   deepseekModel: "deepseek-chat",
+  geminiApiKey: "",
+  geminiModel: "gemini-2.0-flash",
   musicVolume: 35,
   musicTrack: "rain",
   focusHistory: [],
@@ -91,10 +93,13 @@ const elements = {
   aiProvider: document.querySelector("#ai-provider"),
   chatgptSettings: document.querySelector("#chatgpt-settings"),
   deepseekSettings: document.querySelector("#deepseek-settings"),
+  geminiSettings: document.querySelector("#gemini-settings"),
   openaiKey: document.querySelector("#openai-key"),
   openaiModel: document.querySelector("#openai-model"),
   deepseekKey: document.querySelector("#deepseek-key"),
   deepseekModel: document.querySelector("#deepseek-model"),
+  geminiKey: document.querySelector("#gemini-key"),
+  geminiModel: document.querySelector("#gemini-model"),
   musicButton: document.querySelector("#music-button"),
   musicVolume: document.querySelector("#music-volume"),
   musicTrack: document.querySelector("#music-track"),
@@ -462,12 +467,14 @@ function renderAssistant() {
 const aiProviderLabels = {
   chatgpt: "ChatGPT",
   deepseek: "DeepSeek",
+  gemini: "Gemini",
   offline: "Offline coach",
 };
 
 function currentAiApiKey() {
   if (settings.aiProvider === "chatgpt") return settings.openaiApiKey;
   if (settings.aiProvider === "deepseek") return settings.deepseekApiKey;
+  if (settings.aiProvider === "gemini") return settings.geminiApiKey;
   return "";
 }
 
@@ -478,6 +485,7 @@ function updateAssistantModeLabel() {
 function updateAiProviderVisibility() {
   elements.chatgptSettings.hidden = settings.aiProvider !== "chatgpt";
   elements.deepseekSettings.hidden = settings.aiProvider !== "deepseek";
+  elements.geminiSettings.hidden = settings.aiProvider !== "gemini";
 }
 
 function welcomeMessage() {
@@ -519,9 +527,13 @@ function addAssistantMessage(role, text) {
   renderAssistant();
 }
 
-async function fetchOpenAiCompatibleReply({ endpoint, apiKey, model, message }) {
+function buildCoachSystemPrompt() {
   const openTasks = settings.tasks.filter((task) => !task.completed).map((task) => task.text);
-  const systemPrompt = `You are a warm, concise productivity coach embedded in a browser new-tab dashboard. The user's name is "${settings.name || "unknown"}", their focus for today is "${settings.focus || "not set"}", and their open tasks are: ${openTasks.length ? openTasks.join(", ") : "none"}. Keep replies under 100 words.`;
+  return `You are a warm, concise productivity coach embedded in a browser new-tab dashboard. The user's name is "${settings.name || "unknown"}", their focus for today is "${settings.focus || "not set"}", and their open tasks are: ${openTasks.length ? openTasks.join(", ") : "none"}. Keep replies under 100 words.`;
+}
+
+async function fetchOpenAiCompatibleReply({ endpoint, apiKey, model, message }) {
+  const systemPrompt = buildCoachSystemPrompt();
 
   const history = assistantMessages.slice(-8).map((entry) => ({
     role: entry.role === "user" ? "user" : "assistant",
@@ -552,6 +564,37 @@ async function fetchOpenAiCompatibleReply({ endpoint, apiKey, model, message }) 
   return reply;
 }
 
+async function fetchGeminiReply({ apiKey, model, message }) {
+  const systemPrompt = buildCoachSystemPrompt();
+
+  const history = assistantMessages.slice(-8).map((entry) => ({
+    role: entry.role === "user" ? "user" : "model",
+    parts: [{ text: entry.text }],
+  }));
+
+  const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+
+  const response = await fetch(endpoint, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      systemInstruction: { role: "system", parts: [{ text: systemPrompt }] },
+      contents: [...history, { role: "user", parts: [{ text: message }] }],
+      generationConfig: { maxOutputTokens: 220 },
+    }),
+  });
+
+  if (!response.ok) {
+    const body = await response.json().catch(() => ({}));
+    throw new Error(body?.error?.message || `Request failed (${response.status})`);
+  }
+
+  const data = await response.json();
+  const reply = data.candidates?.[0]?.content?.parts?.map((part) => part.text).join("").trim();
+  if (!reply) throw new Error("The assistant returned an empty response.");
+  return reply;
+}
+
 function fetchAiReply(message) {
   if (settings.aiProvider === "chatgpt") {
     return fetchOpenAiCompatibleReply({
@@ -566,6 +609,13 @@ function fetchAiReply(message) {
       endpoint: "https://api.deepseek.com/chat/completions",
       apiKey: settings.deepseekApiKey,
       model: settings.deepseekModel || "deepseek-chat",
+      message,
+    });
+  }
+  if (settings.aiProvider === "gemini") {
+    return fetchGeminiReply({
+      apiKey: settings.geminiApiKey,
+      model: settings.geminiModel || "gemini-2.0-flash",
       message,
     });
   }
@@ -834,6 +884,16 @@ elements.deepseekModel.addEventListener("change", () => {
   save();
 });
 
+elements.geminiKey.addEventListener("input", () => {
+  settings.geminiApiKey = elements.geminiKey.value.trim();
+  save();
+});
+
+elements.geminiModel.addEventListener("change", () => {
+  settings.geminiModel = elements.geminiModel.value;
+  save();
+});
+
 elements.musicButton.addEventListener("click", () => toggleMusic());
 
 elements.musicVolume.addEventListener("input", () => {
@@ -899,6 +959,8 @@ readStoredValue(storageKey, (settingsResult) => {
   elements.openaiModel.value = settings.openaiModel;
   elements.deepseekKey.value = settings.deepseekApiKey;
   elements.deepseekModel.value = settings.deepseekModel;
+  elements.geminiKey.value = settings.geminiApiKey;
+  elements.geminiModel.value = settings.geminiModel;
   elements.musicVolume.value = settings.musicVolume;
   elements.musicTrack.value = settings.musicTrack;
   elements.blockNotifications.checked = settings.blockNotifications;

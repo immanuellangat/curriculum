@@ -12,7 +12,7 @@ This section contains a general overview of topics that you will learn in this l
 
 - How to load the extension in Chrome.
 - How to use the dashboard and its local settings.
-- How to use the built-in focus assistant, powered by ChatGPT or DeepSeek.
+- How to use the built-in focus assistant, powered by ChatGPT, DeepSeek, or Gemini.
 - How to switch to the private offline coach when you prefer not to use the network.
 - How to play focus music, including an online chill radio stream.
 - How to run a focus countdown and review your session history.
@@ -38,15 +38,16 @@ in `chrome://extensions`.
 ### How it works
 
 The dashboard runs entirely in the browser and keeps preferences in local Chrome storage.
-The focus assistant supports three modes, chosen from the **Assistant** dropdown in the
-**AI assistant** settings tab: **ChatGPT (OpenAI)**, **DeepSeek**, or the private
-**Offline coach**.
+The focus assistant supports four modes, chosen from the **Assistant** dropdown in the
+**AI assistant** settings tab: **ChatGPT (OpenAI)**, **DeepSeek**, **Gemini (Google)**, or
+the private **Offline coach**.
 
-Pick ChatGPT or DeepSeek, paste your own API key for that provider, and choose a model.
-Each key is stored only in `chrome.storage.local` on your device and is sent directly to
-that provider (`https://api.openai.com` or `https://api.deepseek.com`) with each message,
-never through any other server. Switch the dropdown to **Offline coach** at any time to
-use a rule-based assistant that never sends messages or personal data over the network.
+Pick ChatGPT, DeepSeek, or Gemini, paste your own API key for that provider, and choose a
+model. Each key is stored only in `chrome.storage.local` on your device and is sent
+directly to that provider (`https://api.openai.com`, `https://api.deepseek.com`, or
+`https://generativelanguage.googleapis.com`) with each message, never through any other
+server. Switch the dropdown to **Offline coach** at any time to use a rule-based assistant
+that never sends messages or personal data over the network.
 
 The play button in the top-left corner offers focus music. Rain, white noise, wind, and
 calm tone are generated in the browser with the Web Audio API, so they work fully offline.

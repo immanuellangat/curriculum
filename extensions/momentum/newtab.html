@@ -163,6 +163,7 @@
         <select id="ai-provider">
           <option value="chatgpt">ChatGPT (OpenAI)</option>
           <option value="deepseek">DeepSeek</option>
+          <option value="gemini">Gemini (Google)</option>
           <option value="offline">Offline coach (private)</option>
         </select>
 
@@ -187,10 +188,21 @@
           </select>
         </div>
 
+        <div id="gemini-settings" class="ai-provider-settings">
+          <label for="gemini-key">Gemini API key</label>
+          <input id="gemini-key" type="password" autocomplete="off" placeholder="AIza..." />
+          <label for="gemini-model">Model</label>
+          <select id="gemini-model">
+            <option value="gemini-2.0-flash">gemini-2.0-flash</option>
+            <option value="gemini-1.5-flash">gemini-1.5-flash</option>
+            <option value="gemini-1.5-pro">gemini-1.5-pro</option>
+          </select>
+        </div>
+
         <p class="settings-note">
-          Pick ChatGPT or DeepSeek to chat online with your own API key — stored only on this
-          device and sent directly to that provider — or choose the offline coach for a
-          private, rule-based assistant that never sends data over the network.
+          Pick ChatGPT, DeepSeek, or Gemini to chat online with your own API key — stored
+          only on this device and sent directly to that provider — or choose the offline
+          coach for a private, rule-based assistant that never sends data over the network.
         </p>
       </div>
     </aside>
