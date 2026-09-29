@@ -14,9 +14,11 @@ const defaults = {
   focus: "",
   use24Hour: false,
   tasks: [],
-  useChatGpt: true,
+  aiProvider: "chatgpt",
   openaiApiKey: "",
   openaiModel: "gpt-4o-mini",
+  deepseekApiKey: "",
+  deepseekModel: "deepseek-chat",
   musicVolume: 35,
   musicTrack: "rain",
   focusHistory: [],
@@ -86,9 +88,13 @@ const elements = {
   assistantMessages: document.querySelector("#assistant-messages"),
   assistantInput: document.querySelector("#assistant-input"),
   assistantModeLabel: document.querySelector("#assistant-mode-label"),
-  useChatGpt: document.querySelector("#use-chatgpt"),
+  aiProvider: document.querySelector("#ai-provider"),
+  chatgptSettings: document.querySelector("#chatgpt-settings"),
+  deepseekSettings: document.querySelector("#deepseek-settings"),
   openaiKey: document.querySelector("#openai-key"),
   openaiModel: document.querySelector("#openai-model"),
+  deepseekKey: document.querySelector("#deepseek-key"),
+  deepseekModel: document.querySelector("#deepseek-model"),
   musicButton: document.querySelector("#music-button"),
   musicVolume: document.querySelector("#music-volume"),
   musicTrack: document.querySelector("#music-track"),
@@ -453,17 +459,35 @@ function renderAssistant() {
   elements.assistantMessages.scrollTop = elements.assistantMessages.scrollHeight;
 }
 
+const aiProviderLabels = {
+  chatgpt: "ChatGPT",
+  deepseek: "DeepSeek",
+  offline: "Offline coach",
+};
+
+function currentAiApiKey() {
+  if (settings.aiProvider === "chatgpt") return settings.openaiApiKey;
+  if (settings.aiProvider === "deepseek") return settings.deepseekApiKey;
+  return "";
+}
+
 function updateAssistantModeLabel() {
-  elements.assistantModeLabel.textContent = settings.useChatGpt ? "ChatGPT" : "Offline coach";
+  elements.assistantModeLabel.textContent = aiProviderLabels[settings.aiProvider] || "Offline coach";
+}
+
+function updateAiProviderVisibility() {
+  elements.chatgptSettings.hidden = settings.aiProvider !== "chatgpt";
+  elements.deepseekSettings.hidden = settings.aiProvider !== "deepseek";
 }
 
 function welcomeMessage() {
-  if (!settings.useChatGpt) {
+  if (settings.aiProvider === "offline") {
     return "I’m your private, offline focus coach. Ask me for a plan, a task suggestion, or a little momentum.";
   }
-  return settings.openaiApiKey
-    ? "I’m connected to ChatGPT. Ask me for a plan, a task suggestion, or a little momentum."
-    : "I’m your online assistant, powered by ChatGPT. Add your OpenAI API key in Settings to start chatting, or turn the toggle off to use the offline coach.";
+  const providerName = aiProviderLabels[settings.aiProvider];
+  return currentAiApiKey()
+    ? `I’m connected to ${providerName}. Ask me for a plan, a task suggestion, or a little momentum.`
+    : `I’m your online assistant, powered by ${providerName}. Add your ${providerName} API key in Settings to start chatting, or switch to the offline coach.`;
 }
 
 function createAssistantReply(message) {
@@ -495,7 +519,7 @@ function addAssistantMessage(role, text) {
   renderAssistant();
 }
 
-async function fetchChatGptReply(message) {
+async function fetchOpenAiCompatibleReply({ endpoint, apiKey, model, message }) {
   const openTasks = settings.tasks.filter((task) => !task.completed).map((task) => task.text);
   const systemPrompt = `You are a warm, concise productivity coach embedded in a browser new-tab dashboard. The user's name is "${settings.name || "unknown"}", their focus for today is "${settings.focus || "not set"}", and their open tasks are: ${openTasks.length ? openTasks.join(", ") : "none"}. Keep replies under 100 words.`;
 
@@ -504,14 +528,14 @@ async function fetchChatGptReply(message) {
     content: entry.text,
   }));
 
-  const response = await fetch("https://api.openai.com/v1/chat/completions", {
+  const response = await fetch(endpoint, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${settings.openaiApiKey}`,
+      Authorization: `Bearer ${apiKey}`,
     },
     body: JSON.stringify({
-      model: settings.openaiModel || "gpt-4o-mini",
+      model,
       messages: [{ role: "system", content: systemPrompt }, ...history, { role: "user", content: message }],
       max_tokens: 220,
     }),
@@ -519,27 +543,48 @@ async function fetchChatGptReply(message) {
 
   if (!response.ok) {
     const body = await response.json().catch(() => ({}));
-    throw new Error(body?.error?.message || `OpenAI request failed (${response.status})`);
+    throw new Error(body?.error?.message || `Request failed (${response.status})`);
   }
 
   const data = await response.json();
   const reply = data.choices?.[0]?.message?.content?.trim();
-  if (!reply) throw new Error("OpenAI returned an empty response.");
+  if (!reply) throw new Error("The assistant returned an empty response.");
   return reply;
+}
+
+function fetchAiReply(message) {
+  if (settings.aiProvider === "chatgpt") {
+    return fetchOpenAiCompatibleReply({
+      endpoint: "https://api.openai.com/v1/chat/completions",
+      apiKey: settings.openaiApiKey,
+      model: settings.openaiModel || "gpt-4o-mini",
+      message,
+    });
+  }
+  if (settings.aiProvider === "deepseek") {
+    return fetchOpenAiCompatibleReply({
+      endpoint: "https://api.deepseek.com/chat/completions",
+      apiKey: settings.deepseekApiKey,
+      model: settings.deepseekModel || "deepseek-chat",
+      message,
+    });
+  }
+  return Promise.reject(new Error("No online assistant selected."));
 }
 
 async function handleAssistantMessage(message) {
   addAssistantMessage("user", message);
 
-  if (!settings.useChatGpt) {
+  if (settings.aiProvider === "offline") {
     addAssistantMessage("assistant", createAssistantReply(message));
     return;
   }
 
-  if (!settings.openaiApiKey) {
+  const providerName = aiProviderLabels[settings.aiProvider];
+  if (!currentAiApiKey()) {
     addAssistantMessage(
       "error",
-      "Add your OpenAI API key in Settings to use ChatGPT, or turn the toggle off to use the offline coach.",
+      `Add your ${providerName} API key in Settings to chat online, or switch to the offline coach.`,
     );
     return;
   }
@@ -548,12 +593,12 @@ async function handleAssistantMessage(message) {
   renderAssistant();
 
   try {
-    const reply = await fetchChatGptReply(message);
+    const reply = await fetchAiReply(message);
     assistantMessages.pop();
     addAssistantMessage("assistant", reply);
   } catch (error) {
     assistantMessages.pop();
-    addAssistantMessage("error", `ChatGPT request failed: ${error.message}`);
+    addAssistantMessage("error", `${providerName} request failed: ${error.message}`);
   }
 }
 
@@ -762,10 +807,11 @@ document.querySelectorAll(".settings-tab").forEach((tab) => {
   });
 });
 
-elements.useChatGpt.addEventListener("change", () => {
-  settings.useChatGpt = elements.useChatGpt.checked;
+elements.aiProvider.addEventListener("change", () => {
+  settings.aiProvider = elements.aiProvider.value;
   save();
   updateAssistantModeLabel();
+  updateAiProviderVisibility();
 });
 
 elements.openaiKey.addEventListener("input", () => {
@@ -775,6 +821,16 @@ elements.openaiKey.addEventListener("input", () => {
 
 elements.openaiModel.addEventListener("change", () => {
   settings.openaiModel = elements.openaiModel.value;
+  save();
+});
+
+elements.deepseekKey.addEventListener("input", () => {
+  settings.deepseekApiKey = elements.deepseekKey.value.trim();
+  save();
+});
+
+elements.deepseekModel.addEventListener("change", () => {
+  settings.deepseekModel = elements.deepseekModel.value;
   save();
 });
 
@@ -823,22 +879,31 @@ document.querySelector("#close-assistant").addEventListener("click", () => {
 
 readStoredValue(storageKey, (settingsResult) => {
   readStoredValue(assistantStorageKey, (assistantResult) => {
-    settings = { ...defaults, ...(settingsResult[storageKey] || {}) };
+    const storedSettings = settingsResult[storageKey] || {};
+    settings = { ...defaults, ...storedSettings };
     assistantMessages = Array.isArray(assistantResult[assistantStorageKey])
       ? assistantResult[assistantStorageKey]
       : [];
     if (!Array.isArray(settings.focusHistory)) settings.focusHistory = [];
   if (!Array.isArray(settings.links)) settings.links = [];
+  if (typeof storedSettings.aiProvider !== "string" && typeof storedSettings.useChatGpt === "boolean") {
+    // Migrate the old on/off ChatGPT toggle to the new provider selection.
+    settings.aiProvider = storedSettings.useChatGpt === false ? "offline" : "chatgpt";
+  }
+  delete settings.useChatGpt;
   elements.focus.value = settings.focus;
   elements.name.value = settings.name;
   elements.twentyFourHour.checked = settings.use24Hour;
-  elements.useChatGpt.checked = settings.useChatGpt;
+  elements.aiProvider.value = settings.aiProvider;
   elements.openaiKey.value = settings.openaiApiKey;
   elements.openaiModel.value = settings.openaiModel;
+  elements.deepseekKey.value = settings.deepseekApiKey;
+  elements.deepseekModel.value = settings.deepseekModel;
   elements.musicVolume.value = settings.musicVolume;
   elements.musicTrack.value = settings.musicTrack;
   elements.blockNotifications.checked = settings.blockNotifications;
   updateAssistantModeLabel();
+  updateAiProviderVisibility();
   document.querySelector("#quote").textContent = quotes[new Date().getDate() % quotes.length];
   renderClock();
   renderTasks();

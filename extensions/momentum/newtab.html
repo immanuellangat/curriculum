@@ -159,20 +159,38 @@
       </div>
 
       <div id="settings-tab-ai" class="settings-tab-panel" role="tabpanel" hidden>
-        <label class="toggle">
-          <input id="use-chatgpt" type="checkbox" checked />
-          <span>Connect to ChatGPT</span>
-        </label>
-        <label for="openai-key">OpenAI API key</label>
-        <input id="openai-key" type="password" autocomplete="off" placeholder="sk-..." />
-        <label for="openai-model">Model</label>
-        <select id="openai-model">
-          <option value="gpt-4o-mini">gpt-4o-mini</option>
-          <option value="gpt-4o">gpt-4o</option>
-          <option value="gpt-3.5-turbo">gpt-3.5-turbo</option>
+        <label for="ai-provider">Assistant</label>
+        <select id="ai-provider">
+          <option value="chatgpt">ChatGPT (OpenAI)</option>
+          <option value="deepseek">DeepSeek</option>
+          <option value="offline">Offline coach (private)</option>
         </select>
+
+        <div id="chatgpt-settings" class="ai-provider-settings">
+          <label for="openai-key">OpenAI API key</label>
+          <input id="openai-key" type="password" autocomplete="off" placeholder="sk-..." />
+          <label for="openai-model">Model</label>
+          <select id="openai-model">
+            <option value="gpt-4o-mini">gpt-4o-mini</option>
+            <option value="gpt-4o">gpt-4o</option>
+            <option value="gpt-3.5-turbo">gpt-3.5-turbo</option>
+          </select>
+        </div>
+
+        <div id="deepseek-settings" class="ai-provider-settings">
+          <label for="deepseek-key">DeepSeek API key</label>
+          <input id="deepseek-key" type="password" autocomplete="off" placeholder="sk-..." />
+          <label for="deepseek-model">Model</label>
+          <select id="deepseek-model">
+            <option value="deepseek-chat">deepseek-chat</option>
+            <option value="deepseek-reasoner">deepseek-reasoner</option>
+          </select>
+        </div>
+
         <p class="settings-note">
-          This assistant is online by default and talks to ChatGPT once you add your OpenAI API key. Your key is stored only on this device and is sent directly to OpenAI. Turn the toggle off to use the private offline coach instead.
+          Pick ChatGPT or DeepSeek to chat online with your own API key — stored only on this
+          device and sent directly to that provider — or choose the offline coach for a
+          private, rule-based assistant that never sends data over the network.
         </p>
       </div>
     </aside>
