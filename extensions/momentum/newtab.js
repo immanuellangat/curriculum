@@ -20,7 +20,7 @@ const defaults = {
   deepseekApiKey: "",
   deepseekModel: "deepseek-chat",
   geminiApiKey: "",
-  geminiModel: "gemini-2.0-flash",
+  geminiModel: "gemini-3.8-flash",
   musicVolume: 35,
   musicTrack: "rain",
   focusHistory: [],
@@ -615,7 +615,7 @@ function fetchAiReply(message) {
   if (settings.aiProvider === "gemini") {
     return fetchGeminiReply({
       apiKey: settings.geminiApiKey,
-      model: settings.geminiModel || "gemini-2.0-flash",
+      model: settings.geminiModel || "gemini-3.8-flash",
       message,
     });
   }
@@ -949,6 +949,10 @@ readStoredValue(storageKey, (settingsResult) => {
   if (typeof storedSettings.aiProvider !== "string" && typeof storedSettings.useChatGpt === "boolean") {
     // Migrate the old on/off ChatGPT toggle to the new provider selection.
     settings.aiProvider = storedSettings.useChatGpt === false ? "offline" : "chatgpt";
+  }
+  if (settings.geminiModel === "gemini-2.0-flash") {
+    // Google retired this model; move existing users to the current default.
+    settings.geminiModel = "gemini-3.8-flash";
   }
   delete settings.useChatGpt;
   elements.focus.value = settings.focus;
