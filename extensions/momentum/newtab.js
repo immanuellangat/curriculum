@@ -20,7 +20,7 @@ const defaults = {
   deepseekApiKey: "",
   deepseekModel: "deepseek-chat",
   geminiApiKey: "",
-  geminiModel: "gemini-1.5-flash",
+  geminiModel: "gemini-flash-latest",
   musicVolume: 35,
   musicTrack: "rain",
   focusHistory: [],
@@ -588,17 +588,35 @@ async function fetchGeminiReply({ apiKey, model, message }) {
     parts: [{ text: entry.text }],
   }));
 
-  const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+  const primaryModel = model || "gemini-flash-latest";
+  const fallbackModel = "gemini-flash-lite-latest";
 
-  const response = await fetch(endpoint, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      systemInstruction: { role: "system", parts: [{ text: systemPrompt }] },
-      contents: [...history, { role: "user", parts: [{ text: message }] }],
-      generationConfig: { maxOutputTokens: 220 },
-    }),
-  });
+  async function sendRequest(targetModel) {
+    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${targetModel}:generateContent?key=${apiKey}`;
+    return fetch(endpoint, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        systemInstruction: { role: "system", parts: [{ text: systemPrompt }] },
+        contents: [...history, { role: "user", parts: [{ text: message }] }],
+        generationConfig: { maxOutputTokens: 600 },
+      }),
+    });
+  }
+
+  let response = await sendRequest(primaryModel);
+
+  // If primary model is unavailable or overloaded (e.g. 503, 429, or high demand), attempt automatic fallback
+  if (!response.ok && primaryModel !== fallbackModel) {
+    const errData = await response.clone().json().catch(() => ({}));
+    const errMsg = (errData?.error?.message || "").toLowerCase();
+    if (response.status === 503 || response.status === 429 || errMsg.includes("demand") || errMsg.includes("overloaded") || errMsg.includes("resource") || errMsg.includes("not found")) {
+      const fallbackResponse = await sendRequest(fallbackModel);
+      if (fallbackResponse.ok) {
+        response = fallbackResponse;
+      }
+    }
+  }
 
   if (!response.ok) {
     const body = await response.json().catch(() => ({}));
@@ -606,7 +624,7 @@ async function fetchGeminiReply({ apiKey, model, message }) {
   }
 
   const data = await response.json();
-  const reply = data.candidates?.[0]?.content?.parts?.map((part) => part.text).join("").trim();
+  const reply = data.candidates?.[0]?.content?.parts?.map((part) => part.text).filter(Boolean).join("").trim();
   if (!reply) throw new Error("The assistant returned an empty response.");
   return reply;
 }
@@ -631,7 +649,7 @@ function fetchAiReply(message) {
   if (settings.aiProvider === "gemini") {
     return fetchGeminiReply({
       apiKey: settings.geminiApiKey,
-      model: settings.geminiModel || "gemini-1.5-flash",
+      model: settings.geminiModel || "gemini-flash-latest",
       message,
     });
   }
@@ -981,9 +999,9 @@ readStoredValue(storageKey, (settingsResult) => {
     // Migrate the old on/off ChatGPT toggle to the new provider selection.
     settings.aiProvider = storedSettings.useChatGpt === false ? "offline" : "chatgpt";
   }
-  if (settings.geminiModel === "gemini-2.0-flash") {
-    // Google retired this model; move existing users to the current default.
-    settings.geminiModel = "gemini-3.8-flash";
+  if (!settings.geminiModel || settings.geminiModel.startsWith("gemini-1.5") || settings.geminiModel.startsWith("gemini-2.0") || settings.geminiModel === "gemini-3.8-flash") {
+    // gemini-flash-latest points to Google's current active stable release and avoids high-demand spikes
+    settings.geminiModel = "gemini-flash-latest";
   }
   delete settings.useChatGpt;
   elements.focus.value = settings.focus;
