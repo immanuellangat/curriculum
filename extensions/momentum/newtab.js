@@ -20,7 +20,7 @@ const defaults = {
   deepseekApiKey: "",
   deepseekModel: "deepseek-chat",
   geminiApiKey: "",
-  geminiModel: "gemini-3.8-flash",
+  geminiModel: "gemini-1.5-flash",
   musicVolume: 35,
   musicTrack: "rain",
   focusHistory: [],
@@ -631,7 +631,7 @@ function fetchAiReply(message) {
   if (settings.aiProvider === "gemini") {
     return fetchGeminiReply({
       apiKey: settings.geminiApiKey,
-      model: settings.geminiModel || "gemini-3.8-flash",
+      model: settings.geminiModel || "gemini-1.5-flash",
       message,
     });
   }
