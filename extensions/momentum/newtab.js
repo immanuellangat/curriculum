@@ -26,6 +26,7 @@ const defaults = {
   focusHistory: [],
   links: [],
   blockNotifications: true,
+  customFocusMinutes: 30,
 };
 
 let settings = { ...defaults };
@@ -105,6 +106,7 @@ const elements = {
   musicTrack: document.querySelector("#music-track"),
   focusStartRow: document.querySelector("#focus-start-row"),
   focusDuration: document.querySelector("#focus-duration"),
+  focusCustomDuration: document.querySelector("#focus-custom-duration"),
   focusStart: document.querySelector("#focus-start"),
   focusCountdown: document.querySelector("#focus-countdown"),
   focusCountdownTime: document.querySelector("#focus-countdown-time"),
@@ -347,6 +349,7 @@ function resetFocusUi() {
   elements.focusCountdown.hidden = true;
   elements.focus.disabled = false;
   elements.focusDuration.disabled = false;
+  elements.focusCustomDuration.disabled = false;
   elements.focusPause.textContent = "Pause";
   setNotificationsBlocked(false);
   elements.focusDndIndicator.hidden = true;
@@ -420,7 +423,19 @@ function togglePauseFocusSession() {
 
 function startFocusSession() {
   const task = elements.focus.value.trim() || "Untitled focus";
-  const minutes = Number(elements.focusDuration.value) || 25;
+  let minutes = 25;
+  if (elements.focusDuration.value === "custom") {
+    const rawVal = elements.focusCustomDuration.value.trim();
+    const customVal = Number(rawVal);
+    if (!rawVal || isNaN(customVal) || customVal <= 0) {
+      elements.focusCustomDuration.focus();
+      return;
+    }
+    minutes = Math.min(Math.max(Math.round(customVal), 1), 720);
+    settings.customFocusMinutes = minutes;
+  } else {
+    minutes = Number(elements.focusDuration.value) || 25;
+  }
 
   settings.focus = task;
   save();
@@ -435,6 +450,7 @@ function startFocusSession() {
   elements.focusCountdown.hidden = false;
   elements.focus.disabled = true;
   elements.focusDuration.disabled = true;
+  elements.focusCustomDuration.disabled = true;
   elements.focusPause.textContent = "Pause";
   elements.focusCountdownTask.textContent = `Focusing on "${task}"`;
   elements.focusCountdownTime.textContent = formatCountdown(focusTimer.totalSeconds);
@@ -782,6 +798,21 @@ elements.focus.addEventListener("change", () => {
   save();
 });
 
+elements.focusDuration.addEventListener("change", () => {
+  const isCustom = elements.focusDuration.value === "custom";
+  elements.focusCustomDuration.hidden = !isCustom;
+  if (isCustom) {
+    elements.focusCustomDuration.focus();
+  }
+});
+
+elements.focusCustomDuration.addEventListener("keydown", (event) => {
+  if (event.key === "Enter") {
+    event.preventDefault();
+    startFocusSession();
+  }
+});
+
 elements.focusStart.addEventListener("click", () => startFocusSession());
 elements.focusPause.addEventListener("click", () => togglePauseFocusSession());
 elements.focusStop.addEventListener("click", () => finishFocusSession(false));
@@ -968,6 +999,7 @@ readStoredValue(storageKey, (settingsResult) => {
   elements.musicVolume.value = settings.musicVolume;
   elements.musicTrack.value = settings.musicTrack;
   elements.blockNotifications.checked = settings.blockNotifications;
+  elements.focusCustomDuration.value = settings.customFocusMinutes || 30;
   updateAssistantModeLabel();
   updateAiProviderVisibility();
   document.querySelector("#quote").textContent = quotes[new Date().getDate() % quotes.length];

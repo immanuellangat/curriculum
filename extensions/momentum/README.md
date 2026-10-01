@@ -54,11 +54,12 @@ calm tone are generated in the browser with the Web Audio API, so they work full
 **Chill radio (online)** instead streams a free lofi/chillout internet radio station
 (SomaFM's Groove Salad) and requires an active internet connection.
 
-Type your main focus, pick a session length, and select **Start focus** to begin a
-countdown timer. Select **Pause** to hold the countdown and **Resume** to continue, or
-**Stop session** to end early. Every session, whether finished or stopped early, is added
-to **Focus history** below, which is stored in `chrome.storage.local` so it persists
-between visits. Use **Clear history** to remove it.
+Type your main focus, pick a session length (or choose **Custom...** to enter your own
+desired minutes), and select **Start focus** to begin a countdown timer. Select **Pause**
+to hold the countdown and **Resume** to continue, or **Stop session** to end early. Every
+session, whether finished or stopped early, is added to **Focus history** below, which is
+stored in `chrome.storage.local` so it persists between visits. Use **Clear history** to
+remove it.
 
 The 🔗 button in the top-left corner opens a quick-links menu. Add a name and URL to
 save a shortcut, click a saved link to open it in a new tab, and use **×** to remove it.

@@ -59,7 +59,17 @@
             <option value="25" selected>25 min</option>
             <option value="45">45 min</option>
             <option value="60">60 min</option>
+            <option value="custom">Custom...</option>
           </select>
+          <input
+            id="focus-custom-duration"
+            type="number"
+            min="1"
+            max="720"
+            placeholder="Mins"
+            aria-label="Custom focus duration in minutes"
+            hidden
+          />
           <button id="focus-start" class="secondary-button" type="button">Start focus</button>
         </div>
 

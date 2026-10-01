@@ -301,12 +301,19 @@ input::placeholder {
   margin-top: 18px;
 }
 
-.focus-start-row select {
+.focus-start-row select,
+.focus-start-row input[type="number"] {
   padding: 8px 10px;
   border: 1px solid var(--line);
   border-radius: 8px;
   background: rgb(255 255 255 / 8%);
   color: var(--text);
+  font: inherit;
+}
+
+.focus-start-row input[type="number"] {
+  width: 90px;
+  text-align: center;
 }
 
 .focus-start-row select option {
