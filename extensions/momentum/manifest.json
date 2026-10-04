@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "Momentum Focus",
+  "name": "Focus Plus",
   "version": "1.0.0",
   "description": "A calm, focused new-tab dashboard with a daily focus and simple to-do list.",
   "chrome_url_overrides": {

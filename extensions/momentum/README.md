@@ -1,6 +1,6 @@
 ### Introduction
 
-Momentum Focus is a small, dependency-free Chrome new-tab extension inspired
+Focus Plus is a small, dependency-free Chrome new-tab extension inspired
 by the calm dashboard experience of Momentum.
 
 It shows the current time and date, a rotating quote, a daily focus prompt, and
