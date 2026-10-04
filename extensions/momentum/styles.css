@@ -712,3 +712,24 @@ input::placeholder {
     height: min(570px, calc(100vh - 32px));
   }
 }
+
+.bg-layer {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background-size: cover;
+  background-position: center;
+  opacity: 0;
+  transition: opacity 1.5s ease;
+}
+
+.bg-layer.visible {
+  opacity: 1;
+}
+
+.bg-layer::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(rgb(8 25 47 / 45%), rgb(8 25 47 / 55%));
+}

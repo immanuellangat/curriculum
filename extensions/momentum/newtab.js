@@ -1060,3 +1060,46 @@ readStoredValue(storageKey, (settingsResult) => {
   });
 });
 });
+
+const backgroundPhotoIds = [
+  "1506744038136-46273834b3fb",
+  "1469474968028-56623f02e42e",
+  "1441974231531-c6227db76b6e",
+  "1507525428034-b723cf961d3e",
+  "1519681393784-d120267933ba",
+  "1500530855697-b586d89ba3ee",
+  "1470071459604-3b5ec3a7fe05",
+  "1501785888041-af3ef285b470",
+  "1472214103451-9374bd1c798e",
+  "1418065460487-3e41a6c84dc5",
+  "1476514525535-07fb3b4ae5f1",
+  "1464822759023-fed622ff2c3b",
+];
+
+function startBackgroundSlideshow() {
+  const layers = [document.querySelector("#bg-a"), document.querySelector("#bg-b")];
+  if (!layers[0] || !layers[1]) return;
+  const order = [...backgroundPhotoIds].sort(() => Math.random() - 0.5);
+  let index = 0;
+  let front = 0;
+
+  const showNext = () => {
+    const id = order[index % order.length];
+    index += 1;
+    const url = "https://images.unsplash.com/photo-" + id + "?auto=format&fit=crop&w=1920&q=70";
+    const loader = new Image();
+    loader.onload = () => {
+      const next = layers[1 - front];
+      next.style.backgroundImage = "url(\"" + url + "\")";
+      next.classList.add("visible");
+      layers[front].classList.remove("visible");
+      front = 1 - front;
+    };
+    loader.src = url;
+  };
+
+  showNext();
+  setInterval(showNext, 10000);
+}
+
+startBackgroundSlideshow();

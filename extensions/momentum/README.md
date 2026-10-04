@@ -80,3 +80,8 @@ assistant** — so related options are grouped together instead of one long scro
 The following questions are an opportunity to reflect on key topics in this lesson. If you can't answer a question, click on it to review the material, but keep in mind you are not expected to memorize or master this knowledge.
 
 - Did you load the extension from the `extensions/momentum` directory?
+
+## Background photos
+
+The dashboard crossfades through calm nature photos from Unsplash every 10 seconds.
+If you are offline, the default gradient stays in place.
