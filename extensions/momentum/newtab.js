@@ -1099,7 +1099,7 @@ function startBackgroundSlideshow() {
   };
 
   showNext();
-  setInterval(showNext, 10000);
+  setInterval(showNext, 60000);
 }
 
 startBackgroundSlideshow();

@@ -83,5 +83,5 @@ The following questions are an opportunity to reflect on key topics in this less
 
 ## Background photos
 
-The dashboard crossfades through calm nature photos from Unsplash every 10 seconds.
+The dashboard crossfades through calm nature photos from Unsplash every minute.
 If you are offline, the default gradient stays in place.
