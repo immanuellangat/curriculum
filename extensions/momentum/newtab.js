@@ -461,8 +461,34 @@ function startFocusSession() {
   focusTimer.intervalId = setInterval(tickFocusCountdown, 1000);
 }
 
+const syncStorageKey = "momentumSyncedSettings";
+const localOnlySettingKeys = ["openaiApiKey", "deepseekApiKey", "geminiApiKey", "focusHistory"];
+
+function syncedSettingsSubset() {
+  const subset = { ...settings };
+  localOnlySettingKeys.forEach((key) => delete subset[key]);
+  return subset;
+}
+
 function save() {
   writeStoredValue(storageKey, settings);
+
+  // API keys and history stay on this device; everything else follows the Google account.
+  if (typeof chrome !== "undefined" && chrome.storage?.sync) {
+    chrome.storage.sync.set({ [syncStorageKey]: syncedSettingsSubset() }, () => {
+      void chrome.runtime.lastError;
+    });
+  }
+}
+
+function readSyncedSettings(callback) {
+  if (typeof chrome === "undefined" || !chrome.storage?.sync) {
+    callback({});
+    return;
+  }
+  chrome.storage.sync.get(syncStorageKey, (result) => {
+    callback(chrome.runtime.lastError ? {} : result[syncStorageKey] || {});
+  });
 }
 
 function saveAssistant() {
@@ -986,9 +1012,10 @@ document.querySelector("#close-assistant").addEventListener("click", () => {
   elements.assistantButton.hidden = false;
 });
 
+readSyncedSettings((syncedSettings) => {
 readStoredValue(storageKey, (settingsResult) => {
   readStoredValue(assistantStorageKey, (assistantResult) => {
-    const storedSettings = settingsResult[storageKey] || {};
+    const storedSettings = { ...(settingsResult[storageKey] || {}), ...syncedSettings };
     settings = { ...defaults, ...storedSettings };
     assistantMessages = Array.isArray(assistantResult[assistantStorageKey])
       ? assistantResult[assistantStorageKey]
@@ -1031,4 +1058,5 @@ readStoredValue(storageKey, (settingsResult) => {
   }
   setInterval(renderClock, 1000);
   });
+});
 });

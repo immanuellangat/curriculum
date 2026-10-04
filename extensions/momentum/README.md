@@ -29,9 +29,10 @@ This section contains a general overview of topics that you will learn in this l
 
 <div class="lesson-content__panel" markdown="1">
 
-Settings and tasks are stored with `chrome.storage.local`, so nothing is sent
-to a server. To update the extension after editing, use **Reload** on its card
-in `chrome://extensions`.
+Settings and tasks are stored with `chrome.storage.local` (and, apart from API keys and
+focus history, mirrored to `chrome.storage.sync` so they follow your Google account across
+Chrome profiles where the extension is installed). Nothing is sent to a server of ours. To
+update the extension after editing, use **Reload** on its card in `chrome://extensions`.
 
 </div>
 
