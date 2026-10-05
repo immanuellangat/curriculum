@@ -75,19 +75,15 @@ in **Settings** if you'd rather keep notifications on.
 **Settings** is organized into tabs — **General**, **Focus**, **Links**, and **AI
 assistant** — so related options are grouped together instead of one long scrolling list.
 
+The dashboard background crossfades through calm nature photos from Unsplash every minute;
+if you are offline, the default gradient stays in place.
+
+The focus timer starts minimized as a small pill above the Focus assistant button. Tap it to
+expand it to the center of the screen, and use the close button, the backdrop or Escape to
+minimize it. While a session runs, the pill shows the remaining time.
+
 ### Knowledge check
 
 The following questions are an opportunity to reflect on key topics in this lesson. If you can't answer a question, click on it to review the material, but keep in mind you are not expected to memorize or master this knowledge.
 
 - Did you load the extension from the `extensions/momentum` directory?
-
-## Background photos
-
-The dashboard crossfades through calm nature photos from Unsplash every minute.
-If you are offline, the default gradient stays in place.
-
-## Focus timer card
-
-The focus timer starts minimized as a small pill above the Focus assistant button.
-Tap it to expand to the center of the screen; use the close button, the backdrop or Escape to minimize it.
-While a session runs, the pill shows the remaining time.
