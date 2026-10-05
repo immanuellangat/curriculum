@@ -86,12 +86,13 @@ The quote under the clock changes every day. There are 65 encouraging quotes tha
 so each day shows a different one and the list starts over after the last. It also updates at midnight
 if the tab stays open.
 
-Rain and Wind use real field recordings bundled in the sounds/ folder, looped with a crossfade so
+Rain and Wind use real field recordings bundled in the `sounds/` folder, looped with a crossfade so
 there is no audible gap, and fall back to synthesized noise if a file can't load. White noise is
 generated as softer pink noise. Sound credits, from Wikimedia Commons:
 
-- ain.ogg: "Rain (1)", public domain.
-- wind.ogg: "Wind in Swedish pine forest at 25 mps", CC BY-SA 4.0.
+- 
+- `rain.ogg`: "Rain (1)", public domain.
+- `wind.ogg`: "Wind in Swedish pine forest at 25 mps", CC BY-SA 4.0.
 
 ### Knowledge check
 
