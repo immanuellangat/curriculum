@@ -205,6 +205,10 @@ const elements = {
   musicTrack: document.querySelector("#music-track"),
   soundsToggle: document.querySelector("#sounds-toggle"),
   soundsCaret: document.querySelector("#sounds-caret"),
+  mediaPanel: document.querySelector("#media-panel"),
+  mediaList: document.querySelector("#media-list"),
+  mediaPlayer: document.querySelector("#media-player"),
+  mediaOpen: document.querySelector("#media-open"),
   soundsDropdown: document.querySelector("#sounds-dropdown"),
   soundsGrid: document.querySelector("#sounds-grid"),
   soundsNow: document.querySelector("#sounds-now"),
@@ -434,6 +438,7 @@ function playBuilt(built) {
 }
 
 function startMusic() {
+  clearMediaPlayer();
   const config = tracks[settings.musicTrack] || tracks.rain;
 
   if (config.type === "stream") {
@@ -520,6 +525,90 @@ const soundPhotos = {
   tone: "1506126613408-eca07ce68773",
   chill: "1511671782779-c97d3d27a1d4",
 };
+
+const mediaChoices = {
+  youtube: [
+    { id: "jfKfPfyJRdk", name: "Lofi Girl radio", emoji: "\u{1F4DA}" },
+    { id: "rUxyKA_-grg", name: "Lofi beats to sleep", emoji: "\u{1F4A4}" },
+    { id: "5yx6BWlEVcY", name: "Chillhop radio", emoji: "\u{1F43E}" },
+    { id: "Dx5qFachd3A", name: "Relaxing jazz piano", emoji: "\u{1F3B7}" },
+    { id: "WJ3-F02-F_Y", name: "Relaxing piano", emoji: "\u{1F3B9}" },
+    { id: "eKFTSSKCzWA", name: "Nature sounds", emoji: "\u{1F332}" },
+  ],
+  spotify: [
+    { id: "37i9dQZF1DWZeKCadgRdKQ", name: "Deep Focus", emoji: "\u{1F3AF}" },
+    { id: "37i9dQZF1DWWQRwui0ExPn", name: "Lofi Beats", emoji: "\u{1F4DA}" },
+    { id: "37i9dQZF1DX4sWSpwq3LiO", name: "Peaceful Piano", emoji: "\u{1F3B9}" },
+    { id: "37i9dQZF1DX3Ogo9pFvBkY", name: "Ambient Relaxation", emoji: "\u{1F30C}" },
+    { id: "37i9dQZF1DWV7EzJMK2FUI", name: "Jazz in the Background", emoji: "\u{1F3B7}" },
+    { id: "37i9dQZF1DX4PP3DA4J0N8", name: "Nature Sounds", emoji: "\u{1F332}" },
+  ],
+};
+
+function mediaUrls(kind, id) {
+  return kind === "youtube"
+    ? {
+        embed: `https://www.youtube-nocookie.com/embed/${id}?autoplay=1&rel=0`,
+        page: `https://www.youtube.com/watch?v=${id}`,
+      }
+    : {
+        embed: `https://open.spotify.com/embed/playlist/${id}?theme=0`,
+        page: `https://open.spotify.com/playlist/${id}`,
+      };
+}
+
+function clearMediaPlayer() {
+  elements.mediaPlayer.replaceChildren();
+  elements.mediaOpen.hidden = true;
+  elements.mediaList.querySelectorAll("button").forEach((b) => b.setAttribute("aria-pressed", "false"));
+}
+
+function playMedia(kind, choice, button) {
+  if (musicPlaying) {
+    stopMusic();
+    updateMusicButtonUi();
+  }
+  clearMediaPlayer();
+  const urls = mediaUrls(kind, choice.id);
+  const frame = document.createElement("iframe");
+  frame.src = urls.embed;
+  frame.title = choice.name;
+  frame.allow = "autoplay; encrypted-media; fullscreen";
+  frame.className = kind === "youtube" ? "media-frame video" : "media-frame";
+  elements.mediaPlayer.append(frame);
+  elements.mediaOpen.href = urls.page;
+  elements.mediaOpen.textContent = kind === "youtube" ? "Not loading? Open on YouTube" : "Open in Spotify";
+  elements.mediaOpen.hidden = false;
+  button.setAttribute("aria-pressed", "true");
+}
+
+function showSoundsTab(tab) {
+  document.querySelectorAll(".sounds-tab").forEach((t) => t.setAttribute("aria-selected", String(t.dataset.tab === tab)));
+  const isMedia = tab !== "sounds";
+  elements.soundsGrid.hidden = isMedia;
+  elements.mediaPanel.hidden = !isMedia;
+  if (!isMedia) return;
+  const playing = elements.mediaList.dataset.kind === tab && elements.mediaPlayer.firstChild;
+  elements.mediaList.dataset.kind = tab;
+  const previous = playing ? elements.mediaList.querySelector("[aria-pressed='true']")?.dataset.id : null;
+  elements.mediaList.replaceChildren(
+    ...mediaChoices[tab].map((choice) => {
+      const item = document.createElement("li");
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "media-choice";
+      button.dataset.id = choice.id;
+      button.setAttribute("aria-pressed", String(choice.id === previous));
+      button.textContent = `${choice.emoji} ${choice.name}`;
+      button.addEventListener("click", () => playMedia(tab, choice, button));
+      item.append(button);
+      return item;
+    }),
+  );
+  if (!playing) clearMediaPlayer();
+}
+
+document.querySelectorAll(".sounds-tab").forEach((tab) => tab.addEventListener("click", () => showSoundsTab(tab.dataset.tab)));
 
 function renderSounds() {
   elements.soundsGrid.replaceChildren(

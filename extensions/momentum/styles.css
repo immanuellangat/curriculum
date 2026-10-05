@@ -1041,3 +1041,71 @@ input::placeholder {
   height: 24px;
   font-size: 0.8rem;
 }
+
+.sounds-tabs {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.sounds-tab {
+  padding: 5px 12px;
+  border: 0;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 10%);
+  color: inherit;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.sounds-tab[aria-selected="true"] {
+  background: #d18b68;
+  color: #1a1a1a;
+}
+
+.media-panel[hidden],
+.sounds-grid[hidden] {
+  display: none;
+}
+
+.media-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0 0 10px;
+  padding: 0;
+  list-style: none;
+}
+
+.media-choice {
+  padding: 6px 10px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: rgb(255 255 255 / 8%);
+  color: inherit;
+  font-size: 0.78rem;
+  cursor: pointer;
+}
+
+.media-choice[aria-pressed="true"] {
+  border-color: #f5d69a;
+  background: rgb(245 214 154 / 18%);
+}
+
+.media-frame {
+  width: 100%;
+  height: 152px;
+  border: 0;
+  border-radius: 12px;
+}
+
+.media-frame.video {
+  height: 190px;
+}
+
+.media-open {
+  display: inline-block;
+  margin-top: 8px;
+  color: #f5d69a;
+  font-size: 0.75rem;
+}

@@ -87,7 +87,7 @@ so each day shows a different one and the list starts over after the last. It al
 if the tab stays open.
 
 The **Play** button in the top bar plays and pauses music, and the small ▾ next to it drops down a tile grid (Rainfall, Wind, Noise, Ocean, Beach, Forest,
-Stream, Train, Thunder, Fire, Calm tone and Chill radio). Each tile shows a small Unsplash photo (loaded online, with a gradient fallback offline). Tap a tile to start it; the ▶/⏸ button inside the panel pauses and resumes it.
+Stream, Train, Thunder, Fire, Calm tone and Chill radio). Each tile shows a small Unsplash photo (loaded online, with a gradient fallback offline). Tap a tile to start it; the ▶/⏸ button inside the panel pauses and resumes it. The panel also has **YouTube** (Lofi Girl, Chillhop, jazz and piano live streams, nature sounds) and **Spotify** (Deep Focus, Lofi Beats, Peaceful Piano and similar playlists) tabs that play embedded players; they need an internet connection, Spotify plays full tracks only when you are logged in to Spotify in Chrome (otherwise 30-second previews), and starting one stops the built-in sound.
 
 Rain, Wind, Ocean, Beach, Forest, Stream, Train and Thunder use real field recordings bundled in the `sounds/` folder, looped with a crossfade so
 there is no audible gap, and fall back to synthesized noise if a file can't load. White noise is

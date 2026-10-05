@@ -32,7 +32,17 @@
                 <span id="sounds-now" class="sounds-now"></span>
                 <button id="sounds-toggle" class="sounds-toggle" type="button" aria-label="Play focus music">▶</button>
               </div>
+              <div class="sounds-tabs" role="tablist">
+                <button type="button" class="sounds-tab" data-tab="sounds" aria-selected="true">Sounds</button>
+                <button type="button" class="sounds-tab" data-tab="youtube" aria-selected="false">YouTube</button>
+                <button type="button" class="sounds-tab" data-tab="spotify" aria-selected="false">Spotify</button>
+              </div>
               <ul id="sounds-grid" class="sounds-grid" aria-label="Sounds"></ul>
+              <div id="media-panel" class="media-panel" hidden>
+                <ul id="media-list" class="media-list" aria-label="Playlists"></ul>
+                <div id="media-player" class="media-player"></div>
+                <a id="media-open" class="media-open" target="_blank" rel="noopener" hidden>Open in a new tab</a>
+              </div>
             </div>
           </div>
           <input id="music-volume" class="music-volume" type="range" min="0" max="100" value="35" aria-label="Focus music volume" hidden />
