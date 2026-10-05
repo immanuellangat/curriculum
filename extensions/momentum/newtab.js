@@ -291,12 +291,59 @@ const tracks = {
   stream: { type: "sample", url: "sounds/stream.ogg", gain: 2, fallback: { type: "noise", smoothing: 0.1, gain: 1.4 } },
   train: { type: "sample", url: "sounds/train.ogg", gain: 2, fallback: { type: "noise", smoothing: 0.02, gain: 3 } },
   thunder: { type: "sample", url: "sounds/thunder.ogg", gain: 1.5, fallback: { type: "noise", smoothing: 0.05, gain: 3 } },
-  fire: { type: "sample", url: "sounds/fire.ogg", gain: 1.5, fallback: { type: "noise", smoothing: 0.01, gain: 1.5 } },
+  // Synthesized from soft embers plus random pops, so there is no background hiss.
+  fire: { type: "fire", gain: 1.6 },
   // A calm low tone with slow vibrato, built from oscillators instead of noise.
   tone: { type: "tone" },
   // Free, publicly streamed lofi/chillout internet radio (requires a connection).
   chill: { type: "stream", url: "https://ice1.somafm.com/groovesalad-128-mp3", label: "SomaFM Groove Salad" },
 };
+
+function createFireBuffer(context) {
+  const seconds = 20;
+  const rate = context.sampleRate;
+  const length = rate * seconds;
+  const buffer = context.createBuffer(2, length, rate);
+  for (let channel = 0; channel < 2; channel += 1) {
+    const data = buffer.getChannelData(channel);
+    // Very quiet, slowly drifting low rumble of the embers.
+    let brown = 0;
+    let slow = 0;
+    for (let i = 0; i < length; i += 1) {
+      brown = (brown + (Math.random() * 2 - 1) * 0.02) / 1.02;
+      if (i % 2000 === 0) slow = 0.6 + Math.random() * 0.4;
+      data[i] = brown * 0.9 * slow;
+    }
+    // Crackles: short decaying bursts at random times, some loud pops, some tiny snaps.
+    const count = seconds * 22;
+    for (let n = 0; n < count; n += 1) {
+      const start = Math.floor(Math.random() * length);
+      const loud = Math.random() < 0.12;
+      const amp = loud ? 0.5 + Math.random() * 0.4 : 0.05 + Math.random() * 0.22;
+      const duration = Math.floor(rate * (loud ? 0.012 + Math.random() * 0.02 : 0.002 + Math.random() * 0.008));
+      const decay = 5 / duration;
+      let previous = 0;
+      for (let i = 0; i < duration; i += 1) {
+        const white = Math.random() * 2 - 1;
+        // High-passing each burst keeps the pops crisp rather than muddy.
+        const crisp = white - previous * 0.6;
+        previous = white;
+        data[(start + i) % length] += crisp * amp * Math.exp(-i * decay);
+      }
+    }
+  }
+  return buffer;
+}
+
+function buildFireNode(context, config) {
+  const source = context.createBufferSource();
+  source.buffer = createFireBuffer(context);
+  source.loop = true;
+  const shaper = context.createGain();
+  shaper.gain.value = config.gain;
+  source.connect(shaper);
+  return { source, output: shaper, nodes: [source] };
+}
 
 function buildNoiseNode(context, config) {
   const source = context.createBufferSource();
@@ -411,6 +458,11 @@ function startMusic() {
       .then((built) => {
         if (token === musicStartToken && musicPlaying) playBuilt(built);
       });
+    return;
+  }
+
+  if (config.type === "fire") {
+    playBuilt(buildFireNode(audioContext, config));
     return;
   }
 
