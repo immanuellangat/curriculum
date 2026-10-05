@@ -86,12 +86,20 @@ The quote under the clock changes every day. There are 65 encouraging quotes tha
 so each day shows a different one and the list starts over after the last. It also updates at midnight
 if the tab stays open.
 
-Rain and Wind use real field recordings bundled in the `sounds/` folder, looped with a crossfade so
+The 🎵 **Sounds** button in the top bar opens a tile grid (Rainfall, Wind, Noise, Ocean, Beach, Forest,
+Stream, Train, Calm tone and Chill radio). Tap a tile to start it; the ▶ button pauses and resumes it.
+
+Rain, Wind, Ocean, Beach, Forest, Stream and Train use real field recordings bundled in the `sounds/` folder, looped with a crossfade so
 there is no audible gap, and fall back to synthesized noise if a file can't load. White noise is
 generated as softer pink noise. Sound credits, from Wikimedia Commons:
 
 - `rain.ogg`: "Rain (1)", public domain.
 - `wind.ogg`: "Wind in Swedish pine forest at 25 mps", CC BY-SA 4.0.
+- `ocean.ogg`: "Oceanwavescrushing", CC BY 3.0.
+- `beach.ogg`: "On a pebble beach", public domain.
+- `forest.ogg`: "Birds forest", public domain.
+- `stream.ogg`: "Shallow small river with stony riverbed", public domain.
+- `train.ogg`: "Taiwan railways EP727 train cars sounds", CC0.
 
 The 🚫 **Site Blocker** button in the top bar opens a list of blocked groups (Social Media, Entertainment,
 News, Shopping and Email). Switch a group on or off, open its arrow to edit the websites in it, or add your own

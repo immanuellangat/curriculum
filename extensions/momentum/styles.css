@@ -956,3 +956,64 @@ input::placeholder {
 .blocker-edit .clear-assistant {
   justify-self: start;
 }
+
+.sounds-dropdown {
+  width: 380px;
+  max-width: calc(100vw - 32px);
+  max-height: calc(100vh - 90px);
+  overflow-y: auto;
+}
+
+.sounds-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.sounds-now {
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+.sounds-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sound-tile {
+  display: grid;
+  gap: 6px;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  text-align: left;
+}
+
+.sound-tile-art {
+  display: grid;
+  place-items: center;
+  aspect-ratio: 1;
+  border: 2px solid transparent;
+  border-radius: 10px;
+  font-size: 1.8rem;
+}
+
+.sound-tile[aria-pressed="true"] .sound-tile-art {
+  border-color: #f5d69a;
+}
+
+.sound-tile-name {
+  font-size: 0.8rem;
+}
+
+.sound-tile[aria-pressed="true"] .sound-tile-name {
+  color: #f5d69a;
+  font-weight: 700;
+}
+

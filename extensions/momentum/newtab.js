@@ -203,6 +203,10 @@ const elements = {
   musicButton: document.querySelector("#music-button"),
   musicVolume: document.querySelector("#music-volume"),
   musicTrack: document.querySelector("#music-track"),
+  soundsButton: document.querySelector("#sounds-button"),
+  soundsDropdown: document.querySelector("#sounds-dropdown"),
+  soundsGrid: document.querySelector("#sounds-grid"),
+  soundsNow: document.querySelector("#sounds-now"),
   focusStartRow: document.querySelector("#focus-start-row"),
   focusDuration: document.querySelector("#focus-duration"),
   focusCustomDuration: document.querySelector("#focus-custom-duration"),
@@ -280,6 +284,11 @@ const tracks = {
   // Pink noise is softer and more natural than raw white noise.
   white: { type: "noise", smoothing: "pink", gain: 1.4 },
   wind: { type: "sample", url: "sounds/wind.ogg", gain: 2.2, fallback: { type: "noise", smoothing: 0.08, gain: 1.6 } },
+  ocean: { type: "sample", url: "sounds/ocean.ogg", gain: 2, fallback: { type: "noise", smoothing: 0.03, gain: 3 } },
+  beach: { type: "sample", url: "sounds/beach.ogg", gain: 2, fallback: { type: "noise", smoothing: 0.05, gain: 2.2 } },
+  forest: { type: "sample", url: "sounds/forest.ogg", gain: 2, fallback: { type: "noise", smoothing: 0.08, gain: 1.6 } },
+  stream: { type: "sample", url: "sounds/stream.ogg", gain: 2, fallback: { type: "noise", smoothing: 0.1, gain: 1.4 } },
+  train: { type: "sample", url: "sounds/train.ogg", gain: 2, fallback: { type: "noise", smoothing: 0.02, gain: 3 } },
   // A calm low tone with slow vibrato, built from oscillators instead of noise.
   tone: { type: "tone" },
   // Free, publicly streamed lofi/chillout internet radio (requires a connection).
@@ -427,12 +436,59 @@ function restartMusicIfPlaying() {
   }
 }
 
+const soundTiles = [
+  { id: "rain", name: "Rainfall", emoji: "???", color: "#1d5b73, #0b2c3d" },
+  { id: "wind", name: "Wind", emoji: "??", color: "#5e7b8a, #2b3d48" },
+  { id: "white", name: "Noise", emoji: "??", color: "#4a4a4a, #151515" },
+  { id: "ocean", name: "Ocean", emoji: "??", color: "#1b6fa0, #0a2a47" },
+  { id: "beach", name: "Beach", emoji: "???", color: "#c9a574, #7d5f3c" },
+  { id: "forest", name: "Forest", emoji: "??", color: "#2f6d3f, #123b22" },
+  { id: "stream", name: "Stream", emoji: "???", color: "#3f8f8a, #174a4d" },
+  { id: "train", name: "Train", emoji: "??", color: "#6b6b7a, #2c2c36" },
+  { id: "tone", name: "Calm tone", emoji: "??", color: "#6b3fa0, #2a1650" },
+  { id: "chill", name: "Chill radio", emoji: "??", color: "#a0523f, #4a1f16" },
+];
+
+function renderSounds() {
+  elements.soundsGrid.replaceChildren(
+    ...soundTiles.map((tile) => {
+      const item = document.createElement("li");
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "sound-tile";
+      button.setAttribute("aria-pressed", String(settings.musicTrack === tile.id));
+      const art = document.createElement("span");
+      art.className = "sound-tile-art";
+      art.style.background = `linear-gradient(135deg, ${tile.color})`;
+      art.textContent = tile.emoji;
+      const name = document.createElement("span");
+      name.className = "sound-tile-name";
+      name.textContent = tile.name;
+      button.append(art, name);
+      button.addEventListener("click", () => chooseSound(tile.id));
+      item.append(button);
+      return item;
+    }),
+  );
+  const current = soundTiles.find((tile) => tile.id === settings.musicTrack);
+  elements.soundsNow.textContent = musicPlaying && current ? `Now playing: ${current.name}` : "";
+}
+
+function chooseSound(id) {
+  const wasPlaying = musicPlaying;
+  settings.musicTrack = id;
+  save();
+  if (wasPlaying) stopMusic();
+  startMusic();
+  updateMusicButtonUi();
+}
+
 function updateMusicButtonUi() {
   elements.musicButton.setAttribute("aria-pressed", String(musicPlaying));
   elements.musicButton.setAttribute("aria-label", musicPlaying ? "Pause focus music" : "Play focus music");
   elements.musicButton.querySelector("span").textContent = musicPlaying ? "⏸" : "▶";
   elements.musicVolume.hidden = !musicPlaying;
-  elements.musicTrack.hidden = !musicPlaying;
+  renderSounds();
 }
 
 function toggleMusic() {
@@ -1345,6 +1401,19 @@ elements.musicVolume.addEventListener("input", () => {
   save();
 });
 
+elements.soundsButton.addEventListener("click", () => {
+  const isOpen = !elements.soundsDropdown.hidden;
+  elements.soundsDropdown.hidden = isOpen;
+  elements.soundsButton.setAttribute("aria-expanded", String(!isOpen));
+});
+
+document.addEventListener("click", (event) => {
+  if (elements.soundsDropdown.hidden) return;
+  if (event.target.closest(".sounds-widget") || !event.target.isConnected) return;
+  elements.soundsDropdown.hidden = true;
+  elements.soundsButton.setAttribute("aria-expanded", "false");
+});
+
 elements.musicTrack.addEventListener("change", () => {
   settings.musicTrack = elements.musicTrack.value;
   save();
@@ -1419,6 +1488,7 @@ readStoredValue(storageKey, (settingsResult) => {
   elements.geminiModel.value = settings.geminiModel;
   elements.musicVolume.value = settings.musicVolume;
   elements.musicTrack.value = settings.musicTrack;
+  renderSounds();
   elements.blockNotifications.checked = settings.blockNotifications;
   elements.stashOnFocus.checked = settings.stashOnFocus;
   renderBlocker();

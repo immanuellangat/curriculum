@@ -23,6 +23,18 @@
             <option value="chill">Chill radio (online)</option>
           </select>
           <input id="music-volume" class="music-volume" type="range" min="0" max="100" value="35" aria-label="Focus music volume" hidden />
+          <div class="links-widget sounds-widget">
+            <button id="sounds-button" class="icon-button" type="button" aria-label="Open sounds" aria-expanded="false">
+              <span aria-hidden="true">??</span>
+            </button>
+            <div id="sounds-dropdown" class="links-dropdown sounds-dropdown" hidden>
+              <div class="sounds-header">
+                <h2 class="blocker-title">Sounds</h2>
+                <span id="sounds-now" class="sounds-now"></span>
+              </div>
+              <ul id="sounds-grid" class="sounds-grid" aria-label="Sounds"></ul>
+            </div>
+          </div>
           <div class="links-widget">
             <button id="links-button" class="icon-button" type="button" aria-label="Open quick links" aria-expanded="false">
               <span aria-hidden="true">🔗</span>
