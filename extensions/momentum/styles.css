@@ -812,17 +812,6 @@ input::placeholder {
   z-index: 4;
 }
 
-.blocked-sites {
-  width: 100%;
-  padding: 10px 12px;
-  border: 1px solid var(--line);
-  border-radius: 10px;
-  color: var(--text);
-  background: rgb(255 255 255 / 8%);
-  font: inherit;
-  resize: vertical;
-}
-
 .blocked-page {
   display: grid;
   place-items: center;
@@ -871,4 +860,99 @@ input::placeholder {
   font-size: 0.85rem;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.blocker-dropdown {
+  width: 320px;
+}
+
+.blocker-header,
+.blocker-group-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.blocker-title {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+.blocker-note {
+  margin: 6px 0 0;
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+.blocker-heading {
+  margin: 14px 0 6px;
+  color: var(--muted);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.blocker-groups {
+  display: grid;
+  margin: 0 0 10px;
+  padding: 0;
+  list-style: none;
+  max-height: 340px;
+  overflow-y: auto;
+}
+
+.blocker-group {
+  padding: 8px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.blocker-group-name {
+  flex: 1;
+}
+
+.blocker-count {
+  margin-left: 6px;
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+.blocker-expand {
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: rgb(255 255 255 / 10%);
+  transition: transform 160ms ease;
+}
+
+.blocker-expand[aria-expanded="true"] {
+  transform: rotate(90deg);
+}
+
+.blocker-edit {
+  display: grid;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.blocker-edit[hidden] {
+  display: none;
+}
+
+.blocker-edit textarea {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--text);
+  background: rgb(255 255 255 / 8%);
+  font: inherit;
+  font-size: 0.8rem;
+  resize: vertical;
+}
+
+.blocker-edit .clear-assistant {
+  justify-self: start;
 }

@@ -93,10 +93,12 @@ generated as softer pink noise. Sound credits, from Wikimedia Commons:
 - `rain.ogg`: "Rain (1)", public domain.
 - `wind.ogg`: "Wind in Swedish pine forest at 25 mps", CC BY-SA 4.0.
 
-The **Focus** tab in **Settings** also has a site blocker. Turn it on, list one website per line,
-and those sites (and their subdomains) show a "stay focused" page while a focus session is
-running. Chrome asks for extra permission the first time you enable it. The block lifts when the
-session ends or is stopped, and the "stay focused" page has an **Unblock sites** button as an escape hatch.
+The 🚫 **Site Blocker** button in the top bar opens a list of blocked groups (Social Media, Entertainment,
+News, Shopping and Email). Switch a group on or off, open its arrow to edit the websites in it, or add your own
+group. The master switch at the top of the panel (also in the **Focus** tab in **Settings**) turns blocking
+on or off, and Chrome asks for extra permission the first time you enable it. While a focus session is
+running, sites in the enabled groups and their subdomains show a "stay focused" page; the block lifts when
+the session ends or is stopped, and that page has an **Unblock sites** button as an escape hatch.
 
 The **Focus** tab also has **Tab Stash**, which saves your other open tabs in the current window (pinned tabs are kept) and closes them, either
 automatically when a focus session starts or with **Stash open tabs now**. Use **Restore all** to reopen them.

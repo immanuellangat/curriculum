@@ -88,7 +88,13 @@ const defaults = {
   blockNotifications: true,
   blockSites: false,
   stashOnFocus: false,
-  blockedSites: ["facebook.com", "x.com", "twitter.com", "instagram.com", "tiktok.com", "reddit.com", "youtube.com"].join("\n"),
+  blockGroups: [
+    { id: "social", emoji: "??", name: "Social Media", enabled: true, sites: ["facebook.com", "instagram.com", "x.com", "twitter.com", "tiktok.com", "snapchat.com", "reddit.com", "pinterest.com", "linkedin.com", "threads.net", "tumblr.com"] },
+    { id: "entertainment", emoji: "??", name: "Entertainment", enabled: true, sites: ["youtube.com", "netflix.com", "twitch.tv", "hulu.com", "disneyplus.com", "primevideo.com", "spotify.com", "9gag.com"] },
+    { id: "news", emoji: "??", name: "News", enabled: false, sites: ["cnn.com", "bbc.com", "nytimes.com", "foxnews.com", "theguardian.com", "news.google.com", "washingtonpost.com"] },
+    { id: "shopping", emoji: "??", name: "Shopping", enabled: false, sites: ["amazon.com", "ebay.com", "aliexpress.com", "temu.com", "shein.com", "etsy.com"] },
+    { id: "email", emoji: "??", name: "Email", enabled: false, sites: ["mail.google.com", "outlook.com", "mail.yahoo.com"] },
+  ],
   customFocusMinutes: 30,
 };
 
@@ -147,9 +153,15 @@ function parseBlockedSites(text) {
   )];
 }
 
+function enabledBlockedDomains() {
+  return parseBlockedSites(
+    settings.blockGroups.filter((group) => group.enabled).flatMap((group) => group.sites).join("\n"),
+  );
+}
+
 function setSitesBlocked(blocked) {
   if (typeof chrome === "undefined" || !chrome.declarativeNetRequest?.updateSessionRules) return;
-  const domains = blocked && settings.blockSites ? parseBlockedSites(settings.blockedSites) : [];
+  const domains = blocked && settings.blockSites ? enabledBlockedDomains() : [];
   const rules = domains.length
     ? [{
         id: 1,
@@ -209,7 +221,12 @@ const elements = {
   stashRestore: document.querySelector("#stash-restore"),
   stashClear: document.querySelector("#stash-clear"),
   stashList: document.querySelector("#stash-list"),
-  blockedSites: document.querySelector("#blocked-sites"),
+  blockerButton: document.querySelector("#blocker-button"),
+  blockerDropdown: document.querySelector("#blocker-dropdown"),
+  blockerMaster: document.querySelector("#blocker-master"),
+  blockerGroups: document.querySelector("#blocker-groups"),
+  blockerAddForm: document.querySelector("#blocker-add-form"),
+  blockerAddName: document.querySelector("#blocker-add-name"),
   linksButton: document.querySelector("#links-button"),
   linksDropdown: document.querySelector("#links-dropdown"),
 };
@@ -1090,11 +1107,11 @@ elements.twentyFourHour.addEventListener("change", () => {
   renderClock();
 });
 
-elements.blockSites.addEventListener("change", () => {
-  const enable = elements.blockSites.checked;
+function setBlockSitesEnabled(enable) {
   const apply = () => {
     settings.blockSites = enable;
     save();
+    renderBlocker();
     setSitesBlocked(!elements.focusCountdown.hidden);
   };
   if (enable && typeof chrome !== "undefined" && chrome.permissions?.request) {
@@ -1102,12 +1119,119 @@ elements.blockSites.addEventListener("change", () => {
       if (granted) {
         apply();
       } else {
-        elements.blockSites.checked = false;
+        renderBlocker();
       }
     });
   } else {
     apply();
   }
+}
+
+elements.blockSites.addEventListener("change", () => setBlockSitesEnabled(elements.blockSites.checked));
+elements.blockerMaster.addEventListener("change", () => setBlockSitesEnabled(elements.blockerMaster.checked));
+
+const expandedBlockerGroups = new Set();
+
+function renderBlocker() {
+  elements.blockSites.checked = settings.blockSites;
+  elements.blockerMaster.checked = settings.blockSites;
+  elements.blockerGroups.replaceChildren(
+    ...settings.blockGroups.map((group) => {
+      const item = document.createElement("li");
+      item.className = "blocker-group";
+
+      const row = document.createElement("div");
+      row.className = "blocker-group-row";
+      const name = document.createElement("span");
+      name.className = "blocker-group-name";
+      name.textContent = `${group.emoji || "??"} ${group.name}`;
+      const count = document.createElement("span");
+      count.className = "blocker-count";
+      count.textContent = String(parseBlockedSites(group.sites.join("\n")).length);
+      name.append(count);
+
+      const toggle = document.createElement("input");
+      toggle.type = "checkbox";
+      toggle.checked = group.enabled;
+      toggle.setAttribute("aria-label", `Block ${group.name}`);
+      toggle.addEventListener("change", () => {
+        group.enabled = toggle.checked;
+        save();
+        setSitesBlocked(!elements.focusCountdown.hidden);
+      });
+
+      const expand = document.createElement("button");
+      expand.type = "button";
+      expand.className = "blocker-expand";
+      expand.textContent = "?";
+      expand.setAttribute("aria-label", `Edit ${group.name} sites`);
+      expand.setAttribute("aria-expanded", String(expandedBlockerGroups.has(group.id)));
+
+      row.append(name, toggle, expand);
+
+      const edit = document.createElement("div");
+      edit.className = "blocker-edit";
+      edit.hidden = !expandedBlockerGroups.has(group.id);
+      const textarea = document.createElement("textarea");
+      textarea.rows = 5;
+      textarea.spellcheck = false;
+      textarea.value = group.sites.join("\n");
+      textarea.setAttribute("aria-label", `${group.name} websites, one per line`);
+      textarea.addEventListener("change", () => {
+        group.sites = parseBlockedSites(textarea.value);
+        save();
+        count.textContent = String(group.sites.length);
+        setSitesBlocked(!elements.focusCountdown.hidden);
+      });
+      const remove = document.createElement("button");
+      remove.type = "button";
+      remove.className = "clear-assistant";
+      remove.textContent = "Delete group";
+      remove.addEventListener("click", () => {
+        settings.blockGroups = settings.blockGroups.filter((candidate) => candidate !== group);
+        save();
+        renderBlocker();
+        setSitesBlocked(!elements.focusCountdown.hidden);
+      });
+      edit.append(textarea, remove);
+
+      expand.addEventListener("click", () => {
+        const open = edit.hidden;
+        edit.hidden = !open;
+        expand.setAttribute("aria-expanded", String(open));
+        if (open) expandedBlockerGroups.add(group.id);
+        else expandedBlockerGroups.delete(group.id);
+      });
+
+      item.append(row, edit);
+      return item;
+    }),
+  );
+}
+
+elements.blockerAddForm.addEventListener("submit", (event) => {
+  event.preventDefault();
+  const name = elements.blockerAddName.value.trim();
+  if (!name) return;
+  const id = `custom-${Date.now()}`;
+  settings.blockGroups.push({ id, emoji: "??", name, enabled: true, sites: [] });
+  expandedBlockerGroups.add(id);
+  elements.blockerAddName.value = "";
+  save();
+  renderBlocker();
+});
+
+elements.blockerButton.addEventListener("click", () => {
+  const isOpen = !elements.blockerDropdown.hidden;
+  elements.blockerDropdown.hidden = isOpen;
+  elements.blockerButton.setAttribute("aria-expanded", String(!isOpen));
+});
+
+document.addEventListener("click", (event) => {
+  if (elements.blockerDropdown.hidden) return;
+  if (event.target.closest(".blocker-widget") || !event.target.isConnected) return;
+  elements.blockerDropdown.hidden = true;
+  elements.blockerButton.setAttribute("aria-expanded", "false");
 });
 
 elements.stashOnFocus.addEventListener("change", () => {
@@ -1121,12 +1245,6 @@ elements.stashClear.addEventListener("click", () => {
   stashedTabs = [];
   writeStoredValue(stashStorageKey, stashedTabs);
   renderStash();
-});
-
-elements.blockedSites.addEventListener("change", () => {
-  settings.blockedSites = elements.blockedSites.value;
-  save();
-  setSitesBlocked(!elements.focusCountdown.hidden);
 });
 
 elements.blockNotifications.addEventListener("change", () => {
@@ -1280,6 +1398,14 @@ readStoredValue(storageKey, (settingsResult) => {
     // gemini-flash-latest points to Google's current active stable release and avoids high-demand spikes
     settings.geminiModel = "gemini-flash-latest";
   }
+  if (!Array.isArray(settings.blockGroups) || !settings.blockGroups.length) {
+    settings.blockGroups = defaults.blockGroups.map((group) => ({ ...group, sites: [...group.sites] }));
+  }
+  if (typeof storedSettings.blockedSites === "string" && storedSettings.blockedSites.trim() !== "facebook.com\nx.com\ntwitter.com\ninstagram.com\ntiktok.com\nreddit.com\nyoutube.com" && !storedSettings.blockGroups) {
+    // Keep sites typed into the earlier single-list blocker as their own group.
+    settings.blockGroups.push({ id: "mine", emoji: "??", name: "My sites", enabled: true, sites: parseBlockedSites(storedSettings.blockedSites) });
+  }
+  delete settings.blockedSites;
   delete settings.useChatGpt;
   elements.focus.value = settings.focus;
   elements.name.value = settings.name;
@@ -1294,9 +1420,8 @@ readStoredValue(storageKey, (settingsResult) => {
   elements.musicVolume.value = settings.musicVolume;
   elements.musicTrack.value = settings.musicTrack;
   elements.blockNotifications.checked = settings.blockNotifications;
-  elements.blockSites.checked = settings.blockSites;
   elements.stashOnFocus.checked = settings.stashOnFocus;
-  elements.blockedSites.value = settings.blockedSites;
+  renderBlocker();
   elements.focusCustomDuration.value = settings.customFocusMinutes || 30;
   updateAssistantModeLabel();
   updateAiProviderVisibility();

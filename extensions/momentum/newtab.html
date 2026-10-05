@@ -36,6 +36,26 @@
               </form>
             </div>
           </div>
+          <div class="links-widget blocker-widget">
+            <button id="blocker-button" class="icon-button" type="button" aria-label="Open site blocker" aria-expanded="false">
+              <span aria-hidden="true">??</span>
+            </button>
+            <div id="blocker-dropdown" class="links-dropdown blocker-dropdown" hidden>
+              <div class="blocker-header">
+                <h2 class="blocker-title">Site Blocker</h2>
+                <label class="blocker-master">
+                  <input id="blocker-master" type="checkbox" aria-label="Block sites while focusing" />
+                </label>
+              </div>
+              <p class="blocker-note">Blocked while a focus session is running.</p>
+              <p class="blocker-heading">BLOCKED GROUPS</p>
+              <ul id="blocker-groups" class="blocker-groups" aria-label="Blocked groups"></ul>
+              <form id="blocker-add-form" class="links-form">
+                <input id="blocker-add-name" type="text" maxlength="30" placeholder="New group name" aria-label="New group name" />
+                <button type="submit" class="add-button" aria-label="Add group">+</button>
+              </form>
+            </div>
+          </div>
           <p id="date" class="date"></p>
         </div>
         <button id="settings-button" class="icon-button" type="button" aria-label="Open settings">
@@ -176,11 +196,10 @@
           <span>Block distracting websites while focusing</span>
         </label>
         <p class="settings-note">
-          One site per line. While a focus session is running, these sites (and their subdomains)
+          While a focus session is running, sites in your enabled groups (and their subdomains)
           show a "stay focused" page instead. Chrome will ask for extra permission the first time
-          you turn this on.
+          you turn this on. Manage the groups from the ?? button at the top of the dashboard.
         </p>
-        <textarea id="blocked-sites" class="blocked-sites" rows="6" spellcheck="false" aria-label="Blocked websites"></textarea>
 
         <label class="toggle">
           <input id="stash-on-focus" type="checkbox" />
