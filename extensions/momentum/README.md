@@ -98,8 +98,7 @@ and those sites (and their subdomains) show a "stay focused" page while a focus 
 running. Chrome asks for extra permission the first time you enable it. The block lifts when the
 session ends or is stopped, and the "stay focused" page has an **Unblock sites** button as an escape hatch.
 
-The **Focus** tab also has **Blur background**, which softens the photo for a calmer look, and **Tab Stash**.
-Tab Stash saves your other open tabs in the current window (pinned tabs are kept) and closes them, either
+The **Focus** tab also has **Tab Stash**, which saves your other open tabs in the current window (pinned tabs are kept) and closes them, either
 automatically when a focus session starts or with **Stash open tabs now**. Use **Restore all** to reopen them.
 The stash is stored locally and is not synced between profiles.
 

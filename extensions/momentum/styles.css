@@ -850,11 +850,6 @@ input::placeholder {
   margin-top: 20px;
 }
 
-.blur-bg .bg-layer {
-  filter: blur(10px);
-  transform: scale(1.06);
-}
-
 .stash-actions {
   display: flex;
   flex-wrap: wrap;

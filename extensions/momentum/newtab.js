@@ -87,7 +87,6 @@ const defaults = {
   links: [],
   blockNotifications: true,
   blockSites: false,
-  blurBackground: false,
   stashOnFocus: false,
   blockedSites: ["facebook.com", "x.com", "twitter.com", "instagram.com", "tiktok.com", "reddit.com", "youtube.com"].join("\n"),
   customFocusMinutes: 30,
@@ -205,7 +204,6 @@ const elements = {
   focusDndIndicator: document.querySelector("#focus-dnd-indicator"),
   blockNotifications: document.querySelector("#block-notifications"),
   blockSites: document.querySelector("#block-sites"),
-  blurBackground: document.querySelector("#blur-background"),
   stashOnFocus: document.querySelector("#stash-on-focus"),
   stashNow: document.querySelector("#stash-now"),
   stashRestore: document.querySelector("#stash-restore"),
@@ -1112,16 +1110,6 @@ elements.blockSites.addEventListener("change", () => {
   }
 });
 
-function applyBackgroundBlur() {
-  document.body.classList.toggle("blur-bg", settings.blurBackground);
-}
-
-elements.blurBackground.addEventListener("change", () => {
-  settings.blurBackground = elements.blurBackground.checked;
-  save();
-  applyBackgroundBlur();
-});
-
 elements.stashOnFocus.addEventListener("change", () => {
   settings.stashOnFocus = elements.stashOnFocus.checked;
   save();
@@ -1307,9 +1295,7 @@ readStoredValue(storageKey, (settingsResult) => {
   elements.musicTrack.value = settings.musicTrack;
   elements.blockNotifications.checked = settings.blockNotifications;
   elements.blockSites.checked = settings.blockSites;
-  elements.blurBackground.checked = settings.blurBackground;
   elements.stashOnFocus.checked = settings.stashOnFocus;
-  applyBackgroundBlur();
   elements.blockedSites.value = settings.blockedSites;
   elements.focusCustomDuration.value = settings.customFocusMinutes || 30;
   updateAssistantModeLabel();
