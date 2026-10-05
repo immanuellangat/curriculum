@@ -86,6 +86,8 @@ const defaults = {
   focusHistory: [],
   links: [],
   blockNotifications: true,
+  blockSites: false,
+  blockedSites: ["facebook.com", "x.com", "twitter.com", "instagram.com", "tiktok.com", "reddit.com", "youtube.com"].join("\n"),
   customFocusMinutes: 30,
 };
 
@@ -135,6 +137,30 @@ function setNotificationsBlocked(blocked) {
   }
 }
 
+function parseBlockedSites(text) {
+  return [...new Set(
+    String(text || "")
+      .split(/[\s,]+/)
+      .map((entry) => entry.trim().toLowerCase().replace(/^[a-z]+:\/\//, "").replace(/^www\./, "").split("/")[0])
+      .filter((entry) => /^[a-z0-9.-]+\.[a-z]{2,}$/.test(entry)),
+  )];
+}
+
+function setSitesBlocked(blocked) {
+  if (typeof chrome === "undefined" || !chrome.declarativeNetRequest?.updateSessionRules) return;
+  const domains = blocked && settings.blockSites ? parseBlockedSites(settings.blockedSites) : [];
+  const rules = domains.length
+    ? [{
+        id: 1,
+        priority: 1,
+        action: { type: "redirect", redirect: { extensionPath: "/blocked.html" } },
+        condition: { requestDomains: domains, resourceTypes: ["main_frame"] },
+      }]
+    : [];
+  // Replace any previous rule so ending a session (or editing the list) always takes effect.
+  chrome.declarativeNetRequest.updateSessionRules({ removeRuleIds: [1], addRules: rules }, () => void chrome.runtime.lastError);
+}
+
 const elements = {
   clock: document.querySelector("#clock"),
   date: document.querySelector("#date"),
@@ -176,6 +202,8 @@ const elements = {
   focusHistoryList: document.querySelector("#focus-history-list"),
   focusDndIndicator: document.querySelector("#focus-dnd-indicator"),
   blockNotifications: document.querySelector("#block-notifications"),
+  blockSites: document.querySelector("#block-sites"),
+  blockedSites: document.querySelector("#blocked-sites"),
   linksButton: document.querySelector("#links-button"),
   linksDropdown: document.querySelector("#links-dropdown"),
 };
@@ -481,6 +509,7 @@ function resetFocusUi() {
   elements.focusCustomDuration.disabled = false;
   elements.focusPause.textContent = "Pause";
   setNotificationsBlocked(false);
+  setSitesBlocked(false);
   elements.focusDndIndicator.hidden = true;
 }
 
@@ -584,6 +613,7 @@ function startFocusSession() {
   elements.focusCountdownTask.textContent = `Focusing on "${task}"`;
   elements.focusCountdownTime.textContent = formatCountdown(focusTimer.totalSeconds);
   setNotificationsBlocked(true);
+  setSitesBlocked(true);
   elements.focusDndIndicator.hidden = !settings.blockNotifications;
 
   stopFocusTimerInterval();
@@ -1008,6 +1038,32 @@ elements.twentyFourHour.addEventListener("change", () => {
   renderClock();
 });
 
+elements.blockSites.addEventListener("change", () => {
+  const enable = elements.blockSites.checked;
+  const apply = () => {
+    settings.blockSites = enable;
+    save();
+    setSitesBlocked(!elements.focusCountdown.hidden);
+  };
+  if (enable && typeof chrome !== "undefined" && chrome.permissions?.request) {
+    chrome.permissions.request({ origins: ["<all_urls>"] }, (granted) => {
+      if (granted) {
+        apply();
+      } else {
+        elements.blockSites.checked = false;
+      }
+    });
+  } else {
+    apply();
+  }
+});
+
+elements.blockedSites.addEventListener("change", () => {
+  settings.blockedSites = elements.blockedSites.value;
+  save();
+  setSitesBlocked(!elements.focusCountdown.hidden);
+});
+
 elements.blockNotifications.addEventListener("change", () => {
   settings.blockNotifications = elements.blockNotifications.checked;
   save();
@@ -1173,6 +1229,8 @@ readStoredValue(storageKey, (settingsResult) => {
   elements.musicVolume.value = settings.musicVolume;
   elements.musicTrack.value = settings.musicTrack;
   elements.blockNotifications.checked = settings.blockNotifications;
+  elements.blockSites.checked = settings.blockSites;
+  elements.blockedSites.value = settings.blockedSites;
   elements.focusCustomDuration.value = settings.customFocusMinutes || 30;
   updateAssistantModeLabel();
   updateAiProviderVisibility();
@@ -1304,3 +1362,6 @@ setInterval(() => {
   const quote = document.querySelector("#quote");
   if (quote && quote.textContent !== dailyQuote()) renderQuote();
 }, 60000);
+
+// A session never survives a closed tab, so lift any leftover site blocks on load.
+setSitesBlocked(false);

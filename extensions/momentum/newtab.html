@@ -170,6 +170,17 @@
           notification pop-ups are silenced so you are not interrupted. They turn back on
           automatically as soon as the session ends or is stopped.
         </p>
+
+        <label class="toggle">
+          <input id="block-sites" type="checkbox" />
+          <span>Block distracting websites while focusing</span>
+        </label>
+        <p class="settings-note">
+          One site per line. While a focus session is running, these sites (and their subdomains)
+          show a "stay focused" page instead. Chrome will ask for extra permission the first time
+          you turn this on.
+        </p>
+        <textarea id="blocked-sites" class="blocked-sites" rows="6" spellcheck="false" aria-label="Blocked websites"></textarea>
       </div>
 
       <div id="settings-tab-links" class="settings-tab-panel" role="tabpanel" hidden>

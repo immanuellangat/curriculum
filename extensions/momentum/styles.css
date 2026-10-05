@@ -811,3 +811,41 @@ input::placeholder {
 #todo-overlay {
   z-index: 4;
 }
+
+.blocked-sites {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  color: var(--text);
+  background: rgb(255 255 255 / 8%);
+  font: inherit;
+  resize: vertical;
+}
+
+.blocked-page {
+  display: grid;
+  place-items: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #08192f, #0b4344);
+}
+
+.blocked-card {
+  width: min(520px, calc(100vw - 32px));
+  padding: 32px;
+  text-align: center;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--panel);
+}
+
+.blocked-note {
+  color: var(--muted);
+}
+
+.blocked-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 20px;
+}

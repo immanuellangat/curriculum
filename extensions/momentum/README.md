@@ -93,6 +93,11 @@ generated as softer pink noise. Sound credits, from Wikimedia Commons:
 - `rain.ogg`: "Rain (1)", public domain.
 - `wind.ogg`: "Wind in Swedish pine forest at 25 mps", CC BY-SA 4.0.
 
+The **Focus** tab in **Settings** also has a site blocker. Turn it on, list one website per line,
+and those sites (and their subdomains) show a "stay focused" page while a focus session is
+running. Chrome asks for extra permission the first time you enable it. The block lifts when the
+session ends or is stopped, and the "stay focused" page has an **Unblock sites** button as an escape hatch.
+
 ### Knowledge check
 
 The following questions are an opportunity to reflect on key topics in this lesson. If you can't answer a question, click on it to review the material, but keep in mind you are not expected to memorize or master this knowledge.
