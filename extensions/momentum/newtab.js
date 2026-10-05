@@ -548,7 +548,7 @@ const mediaChoices = {
 function mediaUrls(kind, id) {
   return kind === "youtube"
     ? {
-        embed: `https://www.youtube-nocookie.com/embed/${id}?autoplay=1&rel=0`,
+        embed: `https://immanuellangat.github.io/focus-plus/player.html?v=${id}`,
         page: `https://www.youtube.com/watch?v=${id}`,
       }
     : {

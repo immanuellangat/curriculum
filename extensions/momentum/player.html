@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Focus Plus player</title>
+<style>html,body,iframe{margin:0;width:100%;height:100%;border:0;background:#000;overflow:hidden}</style>
+</head>
+<body>
+<script>
+  // Hosted on https so YouTube accepts the embed (it rejects chrome-extension:// pages).
+  const id = new URLSearchParams(location.search).get("v") || "";
+  if (/^[\w-]{6,20}$/.test(id)) {
+    const frame = document.createElement("iframe");
+    frame.src = "https://www.youtube.com/embed/" + id + "?autoplay=1&rel=0";
+    frame.allow = "autoplay; encrypted-media; fullscreen";
+    frame.allowFullscreen = true;
+    document.body.append(frame);
+  }
+</script>
+</body>
+</html>
