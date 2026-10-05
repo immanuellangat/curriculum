@@ -12,9 +12,6 @@
     <main class="dashboard">
       <header class="topbar">
         <div class="topbar-left">
-          <button id="music-button" class="icon-button" type="button" aria-label="Play focus music" aria-pressed="false">
-            <span aria-hidden="true">▶</span>
-          </button>
           <select id="music-track" class="music-track" aria-label="Focus music track" hidden>
             <option value="rain">Rain</option>
             <option value="white">White noise</option>
@@ -24,13 +21,14 @@
           </select>
           <input id="music-volume" class="music-volume" type="range" min="0" max="100" value="35" aria-label="Focus music volume" hidden />
           <div class="links-widget sounds-widget">
-            <button id="sounds-button" class="icon-button" type="button" aria-label="Open sounds" aria-expanded="false">
-              <span aria-hidden="true">??</span>
+            <button id="music-button" class="icon-button" type="button" aria-label="Play focus music" aria-expanded="false" aria-haspopup="true">
+              <span aria-hidden="true">▶</span>
             </button>
             <div id="sounds-dropdown" class="links-dropdown sounds-dropdown" hidden>
               <div class="sounds-header">
                 <h2 class="blocker-title">Sounds</h2>
                 <span id="sounds-now" class="sounds-now"></span>
+                <button id="sounds-toggle" class="sounds-toggle" type="button" aria-label="Play focus music">▶</button>
               </div>
               <ul id="sounds-grid" class="sounds-grid" aria-label="Sounds"></ul>
             </div>
