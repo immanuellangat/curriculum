@@ -87,9 +87,9 @@ so each day shows a different one and the list starts over after the last. It al
 if the tab stays open.
 
 The **Play** button in the top bar drops down a tile grid (Rainfall, Wind, Noise, Ocean, Beach, Forest,
-Stream, Train, Calm tone and Chill radio). Each tile shows a small Unsplash photo (loaded online, with a gradient fallback offline). Tap a tile to start it; the ▶/⏸ button inside the panel pauses and resumes it.
+Stream, Train, Thunder, Fire, Calm tone and Chill radio). Each tile shows a small Unsplash photo (loaded online, with a gradient fallback offline). Tap a tile to start it; the ▶/⏸ button inside the panel pauses and resumes it.
 
-Rain, Wind, Ocean, Beach, Forest, Stream and Train use real field recordings bundled in the `sounds/` folder, looped with a crossfade so
+Rain, Wind, Ocean, Beach, Forest, Stream, Train, Thunder and Fire use real field recordings bundled in the `sounds/` folder, looped with a crossfade so
 there is no audible gap, and fall back to synthesized noise if a file can't load. White noise is
 generated as softer pink noise. Sound credits, from Wikimedia Commons:
 
@@ -100,6 +100,8 @@ generated as softer pink noise. Sound credits, from Wikimedia Commons:
 - `forest.ogg`: "Birds forest", public domain.
 - `stream.ogg`: "Shallow small river with stony riverbed", public domain.
 - `train.ogg`: "Taiwan railways EP727 train cars sounds", CC0.
+- `thunder.ogg`: "rbh-thunder-storm" by Richard Humphries, CC BY 3.0.
+- `fire.ogg`: "Bonfire burning" (World Wide Sounds), CC BY 4.0.
 
 The 🚫 **Site Blocker** button in the top bar opens a list of blocked groups (Social Media, Entertainment,
 News, Shopping and Email). Switch a group on or off, open its arrow to edit the websites in it, or add your own

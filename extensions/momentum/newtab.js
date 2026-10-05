@@ -289,6 +289,8 @@ const tracks = {
   forest: { type: "sample", url: "sounds/forest.ogg", gain: 2, fallback: { type: "noise", smoothing: 0.08, gain: 1.6 } },
   stream: { type: "sample", url: "sounds/stream.ogg", gain: 2, fallback: { type: "noise", smoothing: 0.1, gain: 1.4 } },
   train: { type: "sample", url: "sounds/train.ogg", gain: 2, fallback: { type: "noise", smoothing: 0.02, gain: 3 } },
+  thunder: { type: "sample", url: "sounds/thunder.ogg", gain: 1.5, fallback: { type: "noise", smoothing: 0.05, gain: 3 } },
+  fire: { type: "sample", url: "sounds/fire.ogg", gain: 1.5, fallback: { type: "noise", smoothing: 0.01, gain: 1.5 } },
   // A calm low tone with slow vibrato, built from oscillators instead of noise.
   tone: { type: "tone" },
   // Free, publicly streamed lofi/chillout internet radio (requires a connection).
@@ -445,6 +447,8 @@ const soundTiles = [
   { id: "forest", name: "Forest", emoji: "??", color: "#2f6d3f, #123b22" },
   { id: "stream", name: "Stream", emoji: "???", color: "#3f8f8a, #174a4d" },
   { id: "train", name: "Train", emoji: "??", color: "#6b6b7a, #2c2c36" },
+  { id: "thunder", name: "Thunder", emoji: "⛈️", color: "#3b3f6b, #14152e" },
+  { id: "fire", name: "Fire", emoji: "🔥", color: "#c4561f, #4a1a0a" },
   { id: "tone", name: "Calm tone", emoji: "??", color: "#6b3fa0, #2a1650" },
   { id: "chill", name: "Chill radio", emoji: "??", color: "#a0523f, #4a1f16" },
 ];
@@ -458,6 +462,8 @@ const soundPhotos = {
   forest: "1448375240586-882707db888b",
   stream: "1433086966358-54859d0ed716",
   train: "1527684651001-731c474bbb5a",
+  thunder: "1429552077091-836152271555",
+  fire: "1525811902-f2342640856e",
   tone: "1506126613408-eca07ce68773",
   chill: "1511671782779-c97d3d27a1d4",
 };
