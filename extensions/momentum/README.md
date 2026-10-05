@@ -90,7 +90,6 @@ Rain and Wind use real field recordings bundled in the `sounds/` folder, looped 
 there is no audible gap, and fall back to synthesized noise if a file can't load. White noise is
 generated as softer pink noise. Sound credits, from Wikimedia Commons:
 
-- 
 - `rain.ogg`: "Rain (1)", public domain.
 - `wind.ogg`: "Wind in Swedish pine forest at 25 mps", CC BY-SA 4.0.
 
