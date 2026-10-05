@@ -1002,6 +1002,7 @@ input::placeholder {
   border: 2px solid transparent;
   border-radius: 10px;
   font-size: 1.8rem;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
 }
 
 .sound-tile[aria-pressed="true"] .sound-tile-art {

@@ -449,6 +449,19 @@ const soundTiles = [
   { id: "chill", name: "Chill radio", emoji: "??", color: "#a0523f, #4a1f16" },
 ];
 
+const soundPhotos = {
+  rain: "1515694346937-94d85e41e6f0",
+  wind: "1470071459604-3b5ec3a7fe05",
+  white: "1478760329108-5c3ed9d495a0",
+  ocean: "1505118380757-91f5f5632de0",
+  beach: "1507525428034-b723cf961d3e",
+  forest: "1448375240586-882707db888b",
+  stream: "1433086966358-54859d0ed716",
+  train: "1527684651001-731c474bbb5a",
+  tone: "1506126613408-eca07ce68773",
+  chill: "1511671782779-c97d3d27a1d4",
+};
+
 function renderSounds() {
   elements.soundsGrid.replaceChildren(
     ...soundTiles.map((tile) => {
@@ -459,7 +472,11 @@ function renderSounds() {
       button.setAttribute("aria-pressed", String(settings.musicTrack === tile.id));
       const art = document.createElement("span");
       art.className = "sound-tile-art";
-      art.style.background = `linear-gradient(135deg, ${tile.color})`;
+      const photo = soundPhotos[tile.id];
+      const gradient = `linear-gradient(135deg, ${tile.color})`;
+      art.style.background = photo
+        ? `linear-gradient(rgba(0,0,0,0.25), rgba(0,0,0,0.45)), url("https://images.unsplash.com/photo-${photo}?auto=format&fit=crop&w=200&h=200&q=60") center / cover, ${gradient}`
+        : gradient;
       art.textContent = tile.emoji;
       const name = document.createElement("span");
       name.className = "sound-tile-name";

@@ -87,7 +87,7 @@ so each day shows a different one and the list starts over after the last. It al
 if the tab stays open.
 
 The 🎵 **Sounds** button in the top bar opens a tile grid (Rainfall, Wind, Noise, Ocean, Beach, Forest,
-Stream, Train, Calm tone and Chill radio). Tap a tile to start it; the ▶ button pauses and resumes it.
+Stream, Train, Calm tone and Chill radio). Each tile shows a small Unsplash photo (loaded online, with a gradient fallback offline). Tap a tile to start it; the ▶ button pauses and resumes it.
 
 Rain, Wind, Ocean, Beach, Forest, Stream and Train use real field recordings bundled in the `sounds/` folder, looped with a crossfade so
 there is no audible gap, and fall back to synthesized noise if a file can't load. White noise is
