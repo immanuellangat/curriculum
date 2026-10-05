@@ -84,7 +84,7 @@ button {
 }
 
 #links-button[aria-expanded="true"],
-#music-button[aria-expanded="true"] {
+#sounds-caret[aria-expanded="true"] {
   background: rgb(255 255 255 / 24%);
 }
 
@@ -1028,4 +1028,16 @@ input::placeholder {
   background: rgb(255 255 255 / 16%);
   color: inherit;
   cursor: pointer;
+}
+
+.sounds-widget {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.sounds-caret {
+  width: 24px;
+  height: 24px;
+  font-size: 0.8rem;
 }

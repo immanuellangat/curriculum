@@ -204,6 +204,7 @@ const elements = {
   musicVolume: document.querySelector("#music-volume"),
   musicTrack: document.querySelector("#music-track"),
   soundsToggle: document.querySelector("#sounds-toggle"),
+  soundsCaret: document.querySelector("#sounds-caret"),
   soundsDropdown: document.querySelector("#sounds-dropdown"),
   soundsGrid: document.querySelector("#sounds-grid"),
   soundsNow: document.querySelector("#sounds-now"),
@@ -507,6 +508,8 @@ function chooseSound(id) {
 }
 
 function updateMusicButtonUi() {
+  elements.musicButton.setAttribute("aria-pressed", String(musicPlaying));
+  elements.musicButton.setAttribute("aria-label", musicPlaying ? "Pause focus music" : "Play focus music");
   const icon = musicPlaying ? "⏸" : "▶";
   elements.musicButton.querySelector("span").textContent = icon;
   elements.soundsToggle.textContent = icon;
@@ -1425,17 +1428,19 @@ elements.musicVolume.addEventListener("input", () => {
   save();
 });
 
-elements.musicButton.addEventListener("click", () => {
+elements.musicButton.addEventListener("click", () => toggleMusic());
+
+elements.soundsCaret.addEventListener("click", () => {
   const isOpen = !elements.soundsDropdown.hidden;
   elements.soundsDropdown.hidden = isOpen;
-  elements.musicButton.setAttribute("aria-expanded", String(!isOpen));
+  elements.soundsCaret.setAttribute("aria-expanded", String(!isOpen));
 });
 
 document.addEventListener("click", (event) => {
   if (elements.soundsDropdown.hidden) return;
   if (event.target.closest(".sounds-widget") || !event.target.isConnected) return;
   elements.soundsDropdown.hidden = true;
-  elements.musicButton.setAttribute("aria-expanded", "false");
+  elements.soundsCaret.setAttribute("aria-expanded", "false");
 });
 
 elements.musicTrack.addEventListener("change", () => {

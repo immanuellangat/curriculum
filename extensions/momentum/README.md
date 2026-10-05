@@ -86,7 +86,7 @@ The quote under the clock changes every day. There are 65 encouraging quotes tha
 so each day shows a different one and the list starts over after the last. It also updates at midnight
 if the tab stays open.
 
-The **Play** button in the top bar drops down a tile grid (Rainfall, Wind, Noise, Ocean, Beach, Forest,
+The **Play** button in the top bar plays and pauses music, and the small ▾ next to it drops down a tile grid (Rainfall, Wind, Noise, Ocean, Beach, Forest,
 Stream, Train, Thunder, Fire, Calm tone and Chill radio). Each tile shows a small Unsplash photo (loaded online, with a gradient fallback offline). Tap a tile to start it; the ▶/⏸ button inside the panel pauses and resumes it.
 
 Rain, Wind, Ocean, Beach, Forest, Stream, Train, Thunder and Fire use real field recordings bundled in the `sounds/` folder, looped with a crossfade so
