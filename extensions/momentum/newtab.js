@@ -191,8 +191,27 @@ function createNoiseBuffer(context, smoothing) {
   const buffer = context.createBuffer(1, bufferSize, context.sampleRate);
   const data = buffer.getChannelData(0);
   let lastSample = 0;
+  let b0 = 0;
+  let b1 = 0;
+  let b2 = 0;
+  let b3 = 0;
+  let b4 = 0;
+  let b5 = 0;
+  let b6 = 0;
   for (let i = 0; i < bufferSize; i += 1) {
     const white = Math.random() * 2 - 1;
+    if (smoothing === "pink") {
+      // Paul Kellet's filter turns white noise into softer, more natural pink noise.
+      b0 = 0.99886 * b0 + white * 0.0555179;
+      b1 = 0.99332 * b1 + white * 0.0750759;
+      b2 = 0.969 * b2 + white * 0.153852;
+      b3 = 0.8665 * b3 + white * 0.3104856;
+      b4 = 0.55 * b4 + white * 0.5329522;
+      b5 = -0.7616 * b5 - white * 0.016898;
+      data[i] = (b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362) * 0.11;
+      b6 = white * 0.115926;
+      continue;
+    }
     if (smoothing === null) {
       data[i] = white;
       continue;
@@ -205,12 +224,11 @@ function createNoiseBuffer(context, smoothing) {
 }
 
 const tracks = {
-  // Brown-noise style low-pass smoothing gives a soft, rain-like focus tone.
-  rain: { type: "noise", smoothing: 0.02, gain: 3.5 },
-  // Raw white noise (no smoothing) sounds like static/hiss.
-  white: { type: "noise", smoothing: null, gain: 0.25 },
-  // Lighter smoothing than rain gives a breezier, airier wind tone.
-  wind: { type: "noise", smoothing: 0.08, gain: 1.6 },
+  // Real recordings (bundled in sounds/) with synthesized noise as a fallback.
+  rain: { type: "sample", url: "sounds/rain.ogg", gain: 6, fallback: { type: "noise", smoothing: 0.02, gain: 3.5 } },
+  // Pink noise is softer and more natural than raw white noise.
+  white: { type: "noise", smoothing: "pink", gain: 1.4 },
+  wind: { type: "sample", url: "sounds/wind.ogg", gain: 2.2, fallback: { type: "noise", smoothing: 0.08, gain: 1.6 } },
   // A calm low tone with slow vibrato, built from oscillators instead of noise.
   tone: { type: "tone" },
   // Free, publicly streamed lofi/chillout internet radio (requires a connection).
@@ -220,6 +238,36 @@ const tracks = {
 function buildNoiseNode(context, config) {
   const source = context.createBufferSource();
   source.buffer = createNoiseBuffer(context, config.smoothing);
+  source.loop = true;
+  const shaper = context.createGain();
+  shaper.gain.value = config.gain;
+  source.connect(shaper);
+  return { source, output: shaper, nodes: [source] };
+}
+
+async function loadLoopBuffer(context, url) {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error("sample not found");
+  const decoded = await context.decodeAudioData(await response.arrayBuffer());
+  const fade = Math.min(Math.floor(decoded.sampleRate * 2), Math.floor(decoded.length / 3));
+  const length = decoded.length - fade;
+  const looped = context.createBuffer(decoded.numberOfChannels, length, decoded.sampleRate);
+  for (let channel = 0; channel < decoded.numberOfChannels; channel += 1) {
+    const input = decoded.getChannelData(channel);
+    const output = looped.getChannelData(channel);
+    output.set(input.subarray(0, length));
+    // Crossfade the tail into the start so the loop has no audible seam.
+    for (let i = 0; i < fade; i += 1) {
+      const mix = i / fade;
+      output[i] = input[i] * Math.sin((mix * Math.PI) / 2) + input[length + i] * Math.cos((mix * Math.PI) / 2);
+    }
+  }
+  return looped;
+}
+
+function buildSampleNode(context, buffer, config) {
+  const source = context.createBufferSource();
+  source.buffer = buffer;
   source.loop = true;
   const shaper = context.createGain();
   shaper.gain.value = config.gain;
@@ -264,6 +312,17 @@ function startStream(config) {
   musicPlaying = true;
 }
 
+const sampleCache = {};
+let musicStartToken = 0;
+
+function playBuilt(built) {
+  noiseGain = audioContext.createGain();
+  setMusicVolume(Number(elements.musicVolume.value));
+  built.output.connect(noiseGain).connect(audioContext.destination);
+  built.nodes.forEach((node) => node.start());
+  activeSources = built.nodes;
+}
+
 function startMusic() {
   const config = tracks[settings.musicTrack] || tracks.rain;
 
@@ -274,19 +333,29 @@ function startMusic() {
 
   audioContext = audioContext || new (window.AudioContext || window.webkitAudioContext)();
   if (audioContext.state === "suspended") audioContext.resume();
-
-  const built = config.type === "tone" ? buildToneNode(audioContext) : buildNoiseNode(audioContext, config);
-
-  noiseGain = audioContext.createGain();
-  setMusicVolume(Number(elements.musicVolume.value));
-
-  built.output.connect(noiseGain).connect(audioContext.destination);
-  built.nodes.forEach((node) => node.start());
-  activeSources = built.nodes;
   musicPlaying = true;
+  musicStartToken += 1;
+  const token = musicStartToken;
+
+  if (config.type === "sample") {
+    const loading = sampleCache[config.url] || (sampleCache[config.url] = loadLoopBuffer(audioContext, config.url));
+    loading
+      .then((buffer) => buildSampleNode(audioContext, buffer, config))
+      .catch(() => {
+        delete sampleCache[config.url];
+        return buildNoiseNode(audioContext, config.fallback);
+      })
+      .then((built) => {
+        if (token === musicStartToken && musicPlaying) playBuilt(built);
+      });
+    return;
+  }
+
+  playBuilt(config.type === "tone" ? buildToneNode(audioContext) : buildNoiseNode(audioContext, config));
 }
 
 function stopMusic() {
+  musicStartToken += 1;
   activeSources.forEach((node) => {
     node.stop();
     node.disconnect();
