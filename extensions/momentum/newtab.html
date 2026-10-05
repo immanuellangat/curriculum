@@ -98,7 +98,13 @@
         <ul id="focus-history-list" class="focus-history-list"></ul>
       </section>
 
-      <section class="todo-card" aria-labelledby="todo-heading">
+      <div id="todo-overlay" class="focus-overlay" hidden></div>
+      <section id="todo-card" class="todo-card focus-card collapsed" aria-labelledby="todo-heading">
+        <button id="todo-mini" class="focus-mini" type="button" aria-label="Open tasks" aria-expanded="false">
+          <span aria-hidden="true">✅</span>
+          <span id="todo-mini-text">Tasks</span>
+        </button>
+        <button id="todo-close" class="focus-close icon-button" type="button" aria-label="Minimize tasks">×</button>
         <div class="section-heading">
           <h2 id="todo-heading">Tasks</h2>
           <span id="task-count" class="task-count"></span>

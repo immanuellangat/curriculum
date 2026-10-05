@@ -799,3 +799,15 @@ input::placeholder {
 .focus-overlay[hidden] {
   display: none;
 }
+
+.todo-card.collapsed {
+  bottom: 140px;
+}
+
+.todo-card:not(.collapsed) {
+  z-index: 5;
+}
+
+#todo-overlay {
+  z-index: 4;
+}

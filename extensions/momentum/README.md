@@ -80,7 +80,7 @@ if you are offline, the default gradient stays in place.
 
 The focus timer starts minimized as a small pill above the Focus assistant button. Tap it to
 expand it to the center of the screen, and use the close button, the backdrop or Escape to
-minimize it. While a session runs, the pill shows the remaining time.
+minimize it. While a session runs, the pill shows the remaining time. The Tasks card works the same way,\nwith its own pill stacked above the focus pill.
 
 ### Knowledge check
 

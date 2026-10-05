@@ -1131,3 +1131,33 @@ startBackgroundSlideshow();
     miniText.textContent = running ? "Focus " + countdownTime.textContent : "Focus";
   }, 500);
 })();
+
+(function setupTodoCardToggle() {
+  const card = document.querySelector("#todo-card");
+  const overlay = document.querySelector("#todo-overlay");
+  const mini = document.querySelector("#todo-mini");
+  const miniText = document.querySelector("#todo-mini-text");
+  const taskCount = document.querySelector("#task-count");
+  const focusCard = document.querySelector("#focus-card");
+  if (!card || !mini) return;
+
+  const setExpanded = (expanded) => {
+    if (expanded && focusCard) document.querySelector("#focus-close").click();
+    card.classList.toggle("collapsed", !expanded);
+    overlay.hidden = !expanded;
+    mini.setAttribute("aria-expanded", String(expanded));
+  };
+
+  mini.addEventListener("click", () => setExpanded(true));
+  document.querySelector("#todo-close").addEventListener("click", () => setExpanded(false));
+  overlay.addEventListener("click", () => setExpanded(false));
+  document.querySelector("#focus-mini").addEventListener("click", () => setExpanded(false));
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && !card.classList.contains("collapsed")) setExpanded(false);
+  });
+
+  setInterval(() => {
+    const count = taskCount ? taskCount.textContent.trim() : "";
+    miniText.textContent = count || "Tasks";
+  }, 500);
+})();
