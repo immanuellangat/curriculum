@@ -82,6 +82,10 @@ The focus timer starts minimized as a small pill above the Focus assistant butto
 expand it to the center of the screen, and use the close button, the backdrop or Escape to
 minimize it. While a session runs, the pill shows the remaining time. The Tasks card works the same way,\nwith its own pill stacked above the focus pill.
 
+The quote under the clock changes every day. There are 65 encouraging quotes that cycle in order,
+so each day shows a different one and the list starts over after the last. It also updates at midnight
+if the tab stays open.
+
 ### Knowledge check
 
 The following questions are an opportunity to reflect on key topics in this lesson. If you can't answer a question, click on it to review the material, but keep in mind you are not expected to memorize or master this knowledge.

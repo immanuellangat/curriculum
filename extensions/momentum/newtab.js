@@ -7,6 +7,66 @@ const quotes = [
   "Focus on being productive instead of busy.",
   "What you do today can improve all your tomorrows.",
   "Great things are done by a series of small things brought together.",
+  "Start where you are. Use what you have. Do what you can.",
+  "Done is better than perfect.",
+  "Discipline is choosing what you want most over what you want now.",
+  "One task at a time, one day at a time.",
+  "Progress, not perfection.",
+  "You don't have to be great to start, but you have to start to be great.",
+  "Energy flows where attention goes.",
+  "Today is a fresh page. Write something you're proud of.",
+  "Consistency beats intensity.",
+  "The best time to begin was yesterday. The next best time is now.",
+  "Do the hard thing first; the rest gets easier.",
+  "Your future self is watching. Make them proud.",
+  "Quiet focus builds loud results.",
+  "Don't wait for motivation. Build momentum.",
+  "A little progress each day adds up.",
+  "Be stubborn about your goals and flexible about your methods.",
+  "Fall seven times, stand up eight.",
+  "Clarity comes from action, not thought.",
+  "Protect your focus like it's your most valuable asset.",
+  "Slow progress is still progress.",
+  "Make it simple. Make it happen.",
+  "The only way out is through.",
+  "Every expert was once a beginner.",
+  "Show up, even when it's hard.",
+  "Breathe. Reset. Begin again.",
+  "Work hard in silence; let your results speak.",
+  "Your habits shape your days, and your days shape your life.",
+  "Focus is a muscle. Train it daily.",
+  "Choose progress over comfort.",
+  "Dream big, start small, act now.",
+  "Success is the sum of small efforts repeated day after day.",
+  "Turn your can't into can and your dreams into plans.",
+  "Don't count the days; make the days count.",
+  "Action is the foundation of all success.",
+  "Be kind to yourself on the way to your goals.",
+  "Doing something imperfectly beats doing nothing perfectly.",
+  "Stay patient and trust your journey.",
+  "What gets scheduled gets done.",
+  "Distraction is the enemy of greatness.",
+  "Little by little, a little becomes a lot.",
+  "Rest when you need to, but never quit.",
+  "You are capable of more than you think.",
+  "Make today so good that yesterday gets jealous.",
+  "Courage starts with showing up.",
+  "The harder you work, the luckier you get.",
+  "Focus on the step in front of you, not the whole staircase.",
+  "Own your morning, own your day.",
+  "Your only limit is the one you set yourself.",
+  "Create the life you can't wait to wake up to.",
+  "Mistakes are proof that you are trying.",
+  "Set the intention, then do the work.",
+  "Calm mind, clear goals, steady hands.",
+  "If it matters to you, make time for it.",
+  "A good day starts with a good plan.",
+  "Finish what you start.",
+  "Believe you can and you're halfway there.",
+  "Let your focus be your superpower.",
+  "This too is part of the process.",
+  "Win the morning, win the day.",
+  "Keep going. You're closer than you think.",
 ];
 
 const defaults = {
@@ -1047,7 +1107,7 @@ readStoredValue(storageKey, (settingsResult) => {
   elements.focusCustomDuration.value = settings.customFocusMinutes || 30;
   updateAssistantModeLabel();
   updateAiProviderVisibility();
-  document.querySelector("#quote").textContent = quotes[new Date().getDate() % quotes.length];
+  renderQuote();
   renderClock();
   renderTasks();
   renderAssistant();
@@ -1161,3 +1221,17 @@ startBackgroundSlideshow();
     miniText.textContent = count || "Tasks";
   }, 500);
 })();
+
+function dailyQuote(date = new Date()) {
+  const dayNumber = Math.floor(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()) / 86400000);
+  return quotes[dayNumber % quotes.length];
+}
+
+function renderQuote() {
+  document.querySelector("#quote").textContent = dailyQuote();
+}
+
+setInterval(() => {
+  const quote = document.querySelector("#quote");
+  if (quote && quote.textContent !== dailyQuote()) renderQuote();
+}, 60000);
