@@ -87,6 +87,8 @@ const defaults = {
   links: [],
   blockNotifications: true,
   blockSites: false,
+  blurBackground: false,
+  stashOnFocus: false,
   blockedSites: ["facebook.com", "x.com", "twitter.com", "instagram.com", "tiktok.com", "reddit.com", "youtube.com"].join("\n"),
   customFocusMinutes: 30,
 };
@@ -203,6 +205,12 @@ const elements = {
   focusDndIndicator: document.querySelector("#focus-dnd-indicator"),
   blockNotifications: document.querySelector("#block-notifications"),
   blockSites: document.querySelector("#block-sites"),
+  blurBackground: document.querySelector("#blur-background"),
+  stashOnFocus: document.querySelector("#stash-on-focus"),
+  stashNow: document.querySelector("#stash-now"),
+  stashRestore: document.querySelector("#stash-restore"),
+  stashClear: document.querySelector("#stash-clear"),
+  stashList: document.querySelector("#stash-list"),
   blockedSites: document.querySelector("#blocked-sites"),
   linksButton: document.querySelector("#links-button"),
   linksDropdown: document.querySelector("#links-dropdown"),
@@ -579,6 +587,51 @@ function togglePauseFocusSession() {
   }
 }
 
+const stashStorageKey = "momentumTabStash";
+let stashedTabs = [];
+
+function renderStash() {
+  elements.stashList.replaceChildren(
+    ...stashedTabs.map((tab) => {
+      const item = document.createElement("li");
+      item.textContent = tab.title || tab.url;
+      item.title = tab.url;
+      return item;
+    }),
+  );
+  elements.stashRestore.hidden = stashedTabs.length === 0;
+  elements.stashClear.hidden = stashedTabs.length === 0;
+  elements.stashNow.textContent = "Stash open tabs now";
+}
+
+function stashOpenTabs() {
+  if (typeof chrome === "undefined" || !chrome.tabs?.query) {
+    elements.stashNow.textContent = "Only works in the installed extension";
+    return;
+  }
+  chrome.tabs.query({ currentWindow: true }, (tabs) => {
+    const stashable = (tabs || []).filter(
+      (tab) => !tab.active && !tab.pinned && /^https?:/i.test(tab.url || ""),
+    );
+    if (!stashable.length) {
+      elements.stashNow.textContent = "No other tabs to stash";
+      return;
+    }
+    stashedTabs = stashedTabs.concat(stashable.map((tab) => ({ title: tab.title, url: tab.url })));
+    writeStoredValue(stashStorageKey, stashedTabs);
+    chrome.tabs.remove(stashable.map((tab) => tab.id));
+    renderStash();
+  });
+}
+
+function restoreStashedTabs() {
+  if (typeof chrome === "undefined" || !chrome.tabs?.create) return;
+  stashedTabs.forEach((tab) => chrome.tabs.create({ url: tab.url, active: false }));
+  stashedTabs = [];
+  writeStoredValue(stashStorageKey, stashedTabs);
+  renderStash();
+}
+
 function startFocusSession() {
   const task = elements.focus.value.trim() || "Untitled focus";
   let minutes = 25;
@@ -614,6 +667,7 @@ function startFocusSession() {
   elements.focusCountdownTime.textContent = formatCountdown(focusTimer.totalSeconds);
   setNotificationsBlocked(true);
   setSitesBlocked(true);
+  if (settings.stashOnFocus) stashOpenTabs();
   elements.focusDndIndicator.hidden = !settings.blockNotifications;
 
   stopFocusTimerInterval();
@@ -1058,6 +1112,29 @@ elements.blockSites.addEventListener("change", () => {
   }
 });
 
+function applyBackgroundBlur() {
+  document.body.classList.toggle("blur-bg", settings.blurBackground);
+}
+
+elements.blurBackground.addEventListener("change", () => {
+  settings.blurBackground = elements.blurBackground.checked;
+  save();
+  applyBackgroundBlur();
+});
+
+elements.stashOnFocus.addEventListener("change", () => {
+  settings.stashOnFocus = elements.stashOnFocus.checked;
+  save();
+});
+
+elements.stashNow.addEventListener("click", stashOpenTabs);
+elements.stashRestore.addEventListener("click", restoreStashedTabs);
+elements.stashClear.addEventListener("click", () => {
+  stashedTabs = [];
+  writeStoredValue(stashStorageKey, stashedTabs);
+  renderStash();
+});
+
 elements.blockedSites.addEventListener("change", () => {
   settings.blockedSites = elements.blockedSites.value;
   save();
@@ -1230,6 +1307,9 @@ readStoredValue(storageKey, (settingsResult) => {
   elements.musicTrack.value = settings.musicTrack;
   elements.blockNotifications.checked = settings.blockNotifications;
   elements.blockSites.checked = settings.blockSites;
+  elements.blurBackground.checked = settings.blurBackground;
+  elements.stashOnFocus.checked = settings.stashOnFocus;
+  applyBackgroundBlur();
   elements.blockedSites.value = settings.blockedSites;
   elements.focusCustomDuration.value = settings.customFocusMinutes || 30;
   updateAssistantModeLabel();
@@ -1365,3 +1445,9 @@ setInterval(() => {
 
 // A session never survives a closed tab, so lift any leftover site blocks on load.
 setSitesBlocked(false);
+
+readStoredValue(stashStorageKey, (result) => {
+  const stored = result && result[stashStorageKey];
+  stashedTabs = Array.isArray(stored) ? stored : [];
+  renderStash();
+});

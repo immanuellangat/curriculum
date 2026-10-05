@@ -849,3 +849,31 @@ input::placeholder {
   justify-content: center;
   margin-top: 20px;
 }
+
+.blur-bg .bg-layer {
+  filter: blur(10px);
+  transform: scale(1.06);
+}
+
+.stash-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  margin-top: 8px;
+}
+
+.stash-list {
+  margin: 10px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.stash-list li {
+  overflow: hidden;
+  padding: 6px 0;
+  color: var(--muted);
+  font-size: 0.85rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

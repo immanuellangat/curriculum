@@ -181,6 +181,27 @@
           you turn this on.
         </p>
         <textarea id="blocked-sites" class="blocked-sites" rows="6" spellcheck="false" aria-label="Blocked websites"></textarea>
+
+        <label class="toggle">
+          <input id="blur-background" type="checkbox" />
+          <span>Blur background</span>
+        </label>
+        <p class="settings-note">Blur the background photo for a calmer, more focused atmosphere.</p>
+
+        <label class="toggle">
+          <input id="stash-on-focus" type="checkbox" />
+          <span>Stash open tabs when focus starts</span>
+        </label>
+        <p class="settings-note">
+          Tab Stash saves your other open tabs in this window and closes them so nothing distracts you.
+          Restore them any time below.
+        </p>
+        <div class="stash-actions">
+          <button id="stash-now" class="secondary-button" type="button">Stash open tabs now</button>
+          <button id="stash-restore" class="secondary-button" type="button" hidden>Restore all</button>
+          <button id="stash-clear" class="clear-assistant" type="button" hidden>Clear stash</button>
+        </div>
+        <ul id="stash-list" class="stash-list" aria-label="Stashed tabs"></ul>
       </div>
 
       <div id="settings-tab-links" class="settings-tab-panel" role="tabpanel" hidden>
