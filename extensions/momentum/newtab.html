@@ -49,7 +49,13 @@
         <blockquote id="quote" class="quote"></blockquote>
       </section>
 
-      <section class="focus-card" aria-labelledby="focus-heading">
+      <div id="focus-overlay" class="focus-overlay" hidden></div>
+      <section id="focus-card" class="focus-card collapsed" aria-labelledby="focus-heading">
+        <button id="focus-mini" class="focus-mini" type="button" aria-label="Open focus timer" aria-expanded="false">
+          <span aria-hidden="true">🎯</span>
+          <span id="focus-mini-text">Focus</span>
+        </button>
+        <button id="focus-close" class="focus-close icon-button" type="button" aria-label="Minimize focus timer">×</button>
         <p id="focus-heading" class="eyebrow">Today</p>
         <label class="focus-label" for="focus">What is your main focus?</label>
         <input id="focus" class="focus-input" type="text" maxlength="120" placeholder="Make today count" />

@@ -1103,3 +1103,31 @@ function startBackgroundSlideshow() {
 }
 
 startBackgroundSlideshow();
+
+(function setupFocusCardToggle() {
+  const card = document.querySelector("#focus-card");
+  const overlay = document.querySelector("#focus-overlay");
+  const mini = document.querySelector("#focus-mini");
+  const miniText = document.querySelector("#focus-mini-text");
+  const countdown = document.querySelector("#focus-countdown");
+  const countdownTime = document.querySelector("#focus-countdown-time");
+  if (!card || !mini) return;
+
+  const setExpanded = (expanded) => {
+    card.classList.toggle("collapsed", !expanded);
+    overlay.hidden = !expanded;
+    mini.setAttribute("aria-expanded", String(expanded));
+  };
+
+  mini.addEventListener("click", () => setExpanded(true));
+  document.querySelector("#focus-close").addEventListener("click", () => setExpanded(false));
+  overlay.addEventListener("click", () => setExpanded(false));
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && !card.classList.contains("collapsed")) setExpanded(false);
+  });
+
+  setInterval(() => {
+    const running = countdown && !countdown.hidden;
+    miniText.textContent = running ? "Focus " + countdownTime.textContent : "Focus";
+  }, 500);
+})();

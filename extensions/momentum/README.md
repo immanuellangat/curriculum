@@ -85,3 +85,9 @@ The following questions are an opportunity to reflect on key topics in this less
 
 The dashboard crossfades through calm nature photos from Unsplash every minute.
 If you are offline, the default gradient stays in place.
+
+## Focus timer card
+
+The focus timer starts minimized as a small pill above the Focus assistant button.
+Tap it to expand to the center of the screen; use the close button, the backdrop or Escape to minimize it.
+While a session runs, the pill shows the remaining time.

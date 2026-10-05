@@ -733,3 +733,69 @@ input::placeholder {
   inset: 0;
   background: linear-gradient(rgb(8 25 47 / 45%), rgb(8 25 47 / 55%));
 }
+
+.focus-card {
+  position: fixed;
+  z-index: 4;
+  right: 50%;
+  bottom: 50%;
+  width: min(520px, calc(100vw - 32px));
+  max-height: calc(100vh - 48px);
+  margin: 0;
+  overflow-y: auto;
+  transform: translate(50%, 50%);
+  transition: right 320ms ease, bottom 320ms ease, transform 320ms ease, width 320ms ease, padding 320ms ease;
+}
+
+.focus-card.collapsed {
+  right: 28px;
+  bottom: 84px;
+  width: auto;
+  padding: 0;
+  overflow: hidden;
+  transform: none;
+  border-radius: 999px;
+  box-shadow: 0 8px 24px rgb(0 0 0 / 18%);
+}
+
+.focus-card.collapsed > :not(.focus-mini) {
+  display: none;
+}
+
+.focus-card:not(.collapsed) {
+  box-shadow: 0 12px 40px rgb(0 0 0 / 35%);
+}
+
+.focus-card:not(.collapsed) > .focus-mini {
+  display: none;
+}
+
+.focus-card.collapsed > .focus-close {
+  display: none;
+}
+
+.focus-mini {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  padding: 11px 16px;
+  border: 0;
+  background: transparent;
+}
+
+.focus-close {
+  position: absolute;
+  top: 12px;
+  right: 14px;
+}
+
+.focus-overlay {
+  position: fixed;
+  z-index: 3;
+  inset: 0;
+  background: rgb(0 0 0 / 40%);
+}
+
+.focus-overlay[hidden] {
+  display: none;
+}
