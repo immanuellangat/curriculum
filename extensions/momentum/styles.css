@@ -1109,3 +1109,18 @@ input::placeholder {
   color: #f5d69a;
   font-size: 0.75rem;
 }
+
+.credits {
+  margin-top: 16px;
+  font-size: 0.78rem;
+  line-height: 1.5;
+  opacity: 0.85;
+}
+
+.credits summary {
+  cursor: pointer;
+}
+
+.credits a {
+  color: #f5d69a;
+}
